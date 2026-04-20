@@ -34,6 +34,18 @@ header {
   display: flex;
 }
 
+.logo-container {
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.logo-container img {
+    width: 100%;
+    height: auto;
+}
+
 /*---------------- TELA 1 - Lista de unidades e Mapa --------------------------*/
 #lista {
   width: 40%;
