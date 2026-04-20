@@ -11,12 +11,11 @@
       "coords": { "lat": -8.0476, "lng": -34.8770 },
       "produtos": [
         { "id": 1, "nome": "Cuscuz", "descricao": "Cuscuz de milho com manteiga", "preco": 8.90, "categoria": "cafe", "foto": "assets/img/cuscuz.jpg" },
-        { "id": 2, "nome": "Tapioca", "descricao": "Tapioca com coco e leite condensado", "preco": 7.50, "categoria": "cafe", "foto": "assets/img/tapioca.jpg" },
+        { "id": 2, "nome": "Tapioca", "descricao": "Tapioca com morango e leite condensado", "preco": 7.50, "categoria": "cafe", "foto": "assets/img/tapioca.jpg" },
         { "id": 3, "nome": "Baião de Dois", "descricao": "Arroz com feijão e carne seca", "preco": 24.90, "categoria": "almoco", "foto": "assets/img/baiao.jpg" },
         { "id": 4, "nome": "Canjica", "descricao": "Canjica com leite e coco", "preco": 9.90, "categoria": "cafe", "foto": "assets/img/canjica.jpg" },
         { "id": 5, "nome": "Macaxeira Frita", "descricao": "Mandioca crocante", "preco": 12.90, "categoria": "lanche", "foto": "assets/img/macaxeira.jpg" },
         { "id": 6, "nome": "Bolo de Milho", "descricao": "Bolo caseiro de milho", "preco": 8.90, "categoria": "doce", "foto": "assets/img/bolo_milho.jpg" },
-
         { "id": 7, "nome": "Coca-Cola", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca.jpg" },
         { "id": 8, "nome": "Coca-Cola Zero", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca_zero.jpg" },
         { "id": 9, "nome": "Guaraná", "descricao": "Lata 350ml", "preco": 5.50, "categoria": "bebida", "foto": "assets/img/guarana.jpg" },
@@ -39,7 +38,6 @@
         { "id": 14, "nome": "Canjica", "descricao": "Com leite condensado e coco", "preco": 9.90, "categoria": "cafe", "foto": "assets/img/canjica.jpg" },
         { "id": 15, "nome": "Pastel", "descricao": "Queijo", "preco": 7.90, "categoria": "lanche", "foto": "assets/img/pastel.jpg" },
         { "id": 16, "nome": "Pamonha", "descricao": "Doce", "preco": 6.90, "categoria": "doce", "foto": "assets/img/pamonha.jpg" },
-
         { "id": 17, "nome": "Coca-Cola", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca.jpg" },
         { "id": 18, "nome": "Coca-Cola Zero", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca_zero.jpg" },
         { "id": 19, "nome": "Guaraná", "descricao": "Lata 350ml", "preco": 5.50, "categoria": "bebida", "foto": "assets/img/guarana.jpg" },
@@ -60,7 +58,6 @@
         { "id": 22, "nome": "Vatapá", "descricao": "Cremoso", "preco": 18.90, "categoria": "almoco", "foto": "assets/img/vatapa.jpg" },
         { "id": 23, "nome": "Moqueca", "descricao": "Peixe com dendê", "preco": 42.90, "categoria": "almoco", "foto": "assets/img/moqueca.jpg" },
         { "id": 24, "nome": "Cocada", "descricao": "Caseira", "preco": 6.50, "categoria": "doce", "foto": "assets/img/cocada.jpg" },
-
         { "id": 25, "nome": "Coca-Cola", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca.jpg" },
         { "id": 26, "nome": "Coca-Cola Zero", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca_zero.jpg" },
         { "id": 27, "nome": "Guaraná", "descricao": "Lata 350ml", "preco": 5.50, "categoria": "bebida", "foto": "assets/img/guarana.jpg" },
@@ -81,7 +78,6 @@
         { "id": 30, "nome": "Peixada", "descricao": "Com legumes", "preco": 38.90, "categoria": "almoco", "foto": "assets/img/peixada.jpg" },
         { "id": 31, "nome": "Cuscuz de Tapioca", "descricao": "Doce com coco", "preco": 8.90, "categoria": "cafe", "foto": "assets/img/cuscuz_tapioca.jpg" },
         { "id": 32, "nome": "Rapadura", "descricao": "Tradicional", "preco": 4.50, "categoria": "doce", "foto": "assets/img/rapadura.jpg" },
-
         { "id": 33, "nome": "Coca-Cola", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca.jpg" },
         { "id": 34, "nome": "Coca-Cola Zero", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca_zero.jpg" },
         { "id": 35, "nome": "Guaraná", "descricao": "Lata 350ml", "preco": 5.50, "categoria": "bebida", "foto": "assets/img/guarana.jpg" },
@@ -99,10 +95,9 @@
       "coords": { "lat": -3.7329, "lng": -38.6867 },
       "produtos": [
         { "id": 37, "nome": "Escondidinho", "descricao": "Frango com purê", "preco": 29.90, "categoria": "almoco", "foto": "assets/img/escondidinho.jpg" },
-        { "id": 38, "nome": "PF Executivo", "descricao": "Tradicional", "preco": 26.90, "categoria": "almoco", "foto": "assets/img/panelada.jpg" },
+        { "id": 38, "nome": "PF Executivo", "descricao": "Tradicional", "preco": 26.90, "categoria": "almoco", "foto": "assets/img/pf.jpg" },
         { "id": 39, "nome": "Cuscuz Recheado", "descricao": "Com carne seca", "preco": 14.90, "categoria": "cafe", "foto": "assets/img/cuscuz.jpg" },
         { "id": 40, "nome": "Bolo de Macaxeira", "descricao": "Doce", "preco": 9.90, "categoria": "doce", "foto": "assets/img/bolo_macaxeira.jpg" },
-
         { "id": 41, "nome": "Coca-Cola", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca.jpg" },
         { "id": 42, "nome": "Coca-Cola Zero", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca_zero.jpg" },
         { "id": 43, "nome": "Guaraná", "descricao": "Lata 350ml", "preco": 5.50, "categoria": "bebida", "foto": "assets/img/guarana.jpg" },
