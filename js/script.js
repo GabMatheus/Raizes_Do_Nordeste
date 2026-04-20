@@ -6,6 +6,7 @@ async function carregarDados() {
   dados = await res.json();
 }
 
+/* Tela Nossa História */
 async function renderSobreNos() {
     const main = document.getElementById("conteudo-principal");
     main.innerHTML = `
@@ -17,6 +18,7 @@ async function renderSobreNos() {
     `;
 }
 
+/* Tela Contato */
 async function renderContato() {
     const main = document.getElementById("conteudo-principal");
     main.innerHTML = `
@@ -37,7 +39,6 @@ let mapa;
 let marker;
 
 function iniciarMapa() {
-
   mapa = L.map('mapa').setView([-8.0476, -34.8770], 7);
   marker = L.marker([-8.0476, -34.8770]).addTo(mapa);
 
@@ -55,7 +56,6 @@ function moverMapa(lat, lng) {
 /* Renderiza a primeira tela dos cards das unidades */
 async function renderHome() {
   await carregarDados();
-
   const lista = document.getElementById("lista");
 
   let html = "<h2>Selecione a unidade</h2>";
@@ -82,9 +82,10 @@ async function renderHome() {
   lista.innerHTML = html;
 }
 
+/* Renderiza a segunda tela do cardápio de acordo com a unidade q foi selecionada */
 
 
-// Função para voltar
+// Função para voltar inicio
 function voltarParaHome() {
     const main = document.getElementById("conteudo-principal");
     main.innerHTML = 
