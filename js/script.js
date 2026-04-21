@@ -39,7 +39,9 @@ async function renderContato() {
 
 /*------------------- Renderiza a página inicial com os cards das unidades -----------------*/
 async function renderHome() {
-    await carregarDados();
+    if (dados.length === 0 || !dados.unidades) {
+        await carregarDados();
+    }
 
     const lista = document.getElementById("lista");
     let html = "<h2>Selecione a unidade</h2>";
@@ -65,8 +67,86 @@ async function renderHome() {
 }
 
 /* ----------------------------segunda tela ------------------------------- */
+async function abrirCardapio(idUnidade) {
+    const main = document.getElementById("conteudo-principal");
+    const unidade = dados.unidades.find(u => u.id === idUnidade);
+    const produtosPorCategoria = {};
 
+    unidade.produtos.forEach(produto => {
+        if (!produtosPorCategoria[produto.categoria]) {
+            produtosPorCategoria[produto.categoria] = [];
+        }
+        produtosPorCategoria[produto.categoria].push(produto);
+    });
+    
+    const nomeCategorias = {
+        'cafe': '☕ Café da Manhã',
+        'almoco': '🍽️ Almoço',
+        'lanche': '🍔 Lanches',
+        'doce': '🍰 Sobremesas',
+        'bebida': '🥤 Bebidas'
+    };
+    
+    let categoriasHTML = '';
+    
+    for (const [categoria, produtos] of Object.entries(produtosPorCategoria)) {
+        const nomeCategoria = nomeCategorias[categoria] || categoria;
+        
+        let produtosHTML = '';
+        produtos.forEach(produto => {
+            produtosHTML += `
+                <div class="card-produto">
+                    <img src="${produto.foto}" alt="${produto.nome}">
+                    <div class="card-body">
+                        <strong>${produto.nome}</strong>
+                        <p>${produto.descricao}</p>
+                        <span class="preco">R$ ${produto.preco.toFixed(2)}</span>
+                        <button class="btn-add" onclick='adicionarAoCarrinho(${JSON.stringify(produto)})'>
+                            + ADD AO CARRINHO
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        categoriasHTML += `
+            <div class="categoria">
+                <h3 class="categoria-titulo">${nomeCategoria}</h3>
+                <div class="produtos-grid">
+                    ${produtosHTML}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Montar página com carrinho
+    main.innerHTML = `
+        <div class="cardapio-layout">
+            <div class="cardapio-container">
+                <div class="cardapio-header">
+                    <h2>${unidade.nome}</h2>
+                    <p>${unidade.endereco} - ${unidade.cidade}/${unidade.estado}</p>
+                </div>
+                ${categoriasHTML}
+            </div>
 
+            <aside class="carrinho-lateral" id="carrinho">
+                <div class="carrinho-header">
+                    <h3>🛒 Seu Pedido</h3>
+                </div>
+                <div id="itens-carrinho">
+                    <p style="color: #666; text-align: center;">Carrinho vazio</p>
+                </div>
+                <div class="carrinho-footer">
+                    <div class="total">Total: <strong>R$ 0,00</strong></div>
+                    <button class="btn-finalizar">Finalizar Pedido</button>
+                </div>
+            </aside>
+        </div>
+    `;
+}
+
+/*--------------------------------------------------------------------------*/
 
 /*-------------- Inicializa o mapa com OpenStreetMap ----------------*/
 function iniciarMapa() {
@@ -88,9 +168,11 @@ function moverMapa(lat, lng) {
 function voltarParaHome() {
     const main = document.getElementById("conteudo-principal");
     main.innerHTML = `
-        <div id="lista"></div>
-        <div class="moldura-mapa">
-            <div id="mapa"></div>
+        <div id="home">
+            <div id="lista"></div>
+            <div class="moldura-mapa">
+                <div id="mapa"></div>
+            </div>
         </div>
     `;
     
