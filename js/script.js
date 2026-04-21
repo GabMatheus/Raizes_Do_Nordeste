@@ -187,6 +187,7 @@ function renderCarrinho() {
     const lista = document.querySelector('#itens-carrinho');
     lista.innerHTML = '';
 
+    if (!lista) return;
     carrinho.forEach(item => {
         const div = document.createElement('div');
         div.className = 'item-carrinho';
@@ -277,10 +278,64 @@ function confirmarLogin() {
                 <h2>USUÁRIO NÃO ENCONTRADO</h2>
                 <p>Deseja realizar seu cadastro para acumular pontos?</p>
                 <button class="btn-voltar" onclick="fazerLogin()">VOLTAR</button>
-                <button class="btn-entrar" onclick="alert('Criar tela cadastro')">CADASTRAR</button>
+                <button class="btn-entrar" onclick="abrirTermoLGPD()">CADASTRAR</button>
             </div>
         `;
     }
+}
+
+function abrirTermoLGPD() {
+    const overlay = document.createElement("div");
+    overlay.className = "overlay-lgpd";
+    overlay.id = "overlay-lgpd";
+
+    const modal = document.createElement("div");
+    modal.className = "modal-lgpd";
+    modal.id = "modal-lgpd";
+    
+    modal.innerHTML = `
+        <h3>Termo de Privacidade</h3>
+        <p>
+            Para acumular pontos e receber descontos, precisamos processar seus dados de compra. 
+            Você aceita nossos termos de uso e política de privacidade (LGPD)?
+        </p>
+        <button class="btn-aceitar" onclick="confirmarAceiteLGPD()">EU ACEITO E QUERO ME CADASTRAR</button>
+    `;
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
+}
+
+function confirmarAceiteLGPD() {
+    document.getElementById("overlay-lgpd").remove();
+    document.getElementById("modal-lgpd").remove();
+    
+    irParaTelaCadastro(); 
+}
+
+function irParaTelaCadastro() {
+    const containerEsquerdo = document.querySelector(".cardapio-container");
+    
+    containerEsquerdo.innerHTML = `
+        <div class="login-container-fidelidade">
+            <h2>CADASTRO</h2>
+            <div class="form-group">
+                <input type="text" id="novo-nome" placeholder="NOME COMPLETO">
+            </div>
+            <div class="form-group">
+                <input type="text" id="novo-email" placeholder="E-MAIL OU CPF">
+            </div>
+            <div class="form-group">
+                <input type="password" id="nova-senha" placeholder="CRIE UMA SENHA">
+            </div>
+            <button class="btn-entrar" onclick="salvarNovoUsuario()">FINALIZAR CADASTRO</button>
+            <button class="btn-voltar" onclick="fazerLogin()">CANCELAR</button>
+        </div>
+    `;
+}
+
+function salvarNovoUsuario(){
+    alert("Aqui enviaria para o servidor back-end via fetch e mostraria uma mensagem de cadastro realizado e já redirecionaria para tela de pontos.")
 }
 
 function renderizarPainelPontos() {
@@ -308,7 +363,7 @@ function selecionarDesconto(porcentagem, custoPontos) {
         descontoAtivo = porcentagem;
         pontos = custoPontos;
         
-        mostrarNotificacao(`Desconto de ${porcentagem}% aplicado! Foram utilizados ${custoPontos} pontos.`);
+        mostrarNotificacao(`Desconto de ${porcentagem}% aplicado!`);
         
         renderizarPainelPontos();
         atualizarVisualizacaoCarrinho();
