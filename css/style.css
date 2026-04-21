@@ -307,6 +307,7 @@ button:hover {
 
 .produtos-grid {
     display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
 
@@ -395,7 +396,7 @@ button:hover {
     display: flex;
     max-width: 1200px;
     margin: 0 auto;
-    gap: 20px;
+    gap: 120px;
     padding: 20px;
     align-items: flex-start;
 }
@@ -412,7 +413,7 @@ button:hover {
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     position: sticky; 
-    top: 20px;
+    top: 120px;
     border-top: 5px solid #DAA520;
 }
 
@@ -434,6 +435,22 @@ button:hover {
     margin-bottom: 15px;
 }
 
+.btn-log-desconto {
+    width: 100%;
+    background: #e2f81f;
+    color: black;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-log-desconto:hover {
+    background: #fbff2c;
+}
+
 .btn-finalizar {
     width: 100%;
     background: #16ca43;
@@ -450,6 +467,31 @@ button:hover {
     background: #118f2f;
 }
 
+.item-carrinho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.item-carrinho .info {
+    display: flex;
+    flex-direction: column;
+}
+
+.item-carrinho .acoes {
+    display: flex;
+    align-items: center;
+}
+
+.item-carrinho button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
 @media (max-width: 900px) {
     .cardapio-layout {
         flex-direction: column;
@@ -460,6 +502,35 @@ button:hover {
     }
 }
 
+/* ---------------------------- spam notificações ----------------------*/
+
+.notificacao {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+
+    background-color: #333;
+    color: #fff;
+
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+
+    opacity: 0;
+    transform: translateY(20px);
+    animation: aparecer 0.3s ease forwards;
+}
+
+@keyframes aparecer {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 /*----------------------------- Rodapé --------------------------------*/
 footer {

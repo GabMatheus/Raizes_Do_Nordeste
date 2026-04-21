@@ -2,6 +2,7 @@
 let dados = [];
 let mapa;
 let marker;
+let carrinho = [];
 
 /*----------------------- Carrega os dados do arquivo JSON ------------------------*/
 async function carregarDados() {
@@ -139,6 +140,7 @@ async function abrirCardapio(idUnidade) {
                 </div>
                 <div class="carrinho-footer">
                     <div class="total">Total: <strong>R$ 0,00</strong></div>
+                    <button class="btn-log-desconto">Logar Para Aplicar Desconto</button>
                     <button class="btn-finalizar">Finalizar Pedido</button>
                 </div>
             </aside>
@@ -146,7 +148,89 @@ async function abrirCardapio(idUnidade) {
     `;
 }
 
-/*--------------------------------------------------------------------------*/
+
+/*---------------------------- colocar e remover carrinho -------------------------------*/
+function adicionarAoCarrinho(produto){
+    const itemRepetido = carrinho.find(item => item.id === produto.id);
+
+    if (itemRepetido) {
+        itemRepetido.quantidade++;
+    } else {
+        carrinho.push({
+            id: produto.id,
+            nome: produto.nome,
+            preco: produto.preco,
+            quantidade: 1
+        });
+    }
+
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+
+    atualizarTotalCarrinho();
+    renderCarrinho();
+    
+    mostrarNotificacao(`${produto.nome} adicionado ao carrinho!`);
+
+}
+
+function renderCarrinho() {
+    const lista = document.querySelector('#itens-carrinho');
+    lista.innerHTML = '';
+
+    carrinho.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item-carrinho';
+
+        div.innerHTML = `
+            <div class="info">
+                <p>${item.nome}</p>
+                <span>R$ ${item.preco.toFixed(2)} x ${item.quantidade}</span>
+            </div>
+
+            <div class="acoes">
+                <button onclick="removerDoCarrinho(${item.id})">🗑️</button>
+            </div>
+        `;
+
+        lista.appendChild(div);
+    });
+}
+
+function atualizarTotalCarrinho() {
+    const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+    const totalElement = document.querySelector('.carrinho-footer .total strong');
+    if (totalElement) {
+        totalElement.innerText = `R$ ${total.toFixed(2)}`;
+    }
+}
+
+function removerDoCarrinho(id) {
+    const index = carrinho.findIndex(item => item.id === id);
+
+    if (index !== -1) {
+        carrinho[index].quantidade--;
+
+        if (carrinho[index].quantidade <= 0) {
+            carrinho.splice(index, 1);
+        }
+    }
+
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+
+    renderCarrinho();
+    atualizarTotalCarrinho();
+}
+
+function mostrarNotificacao(mensagem) {
+    const notificacao = document.createElement('div');
+    notificacao.className = 'notificacao';
+    notificacao.innerHTML = mensagem;
+    document.body.appendChild(notificacao);
+    
+    setTimeout(() => {
+        notificacao.remove();
+    }, 2000);
+}
 
 /*-------------- Inicializa o mapa com OpenStreetMap ----------------*/
 function iniciarMapa() {
