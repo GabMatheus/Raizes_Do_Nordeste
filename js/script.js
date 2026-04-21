@@ -3,6 +3,14 @@ let dados = [];
 let mapa;
 let marker;
 let carrinho = [];
+// Simulação de banco de dados
+const usuariosCadastrados = [
+    { user: "teste", senha: "123", pontos: 7000 },
+    { user: "teste2", senha: "222" , pontos:3000 }
+];
+let usuarioLogado = null;
+let descontoAtivo = 0;
+let pontos = 0;
 
 /*----------------------- Carrega os dados do arquivo JSON ------------------------*/
 async function carregarDados() {
@@ -140,12 +148,15 @@ async function abrirCardapio(idUnidade) {
                 </div>
                 <div class="carrinho-footer">
                     <div class="total">Total: <strong>R$ 0,00</strong></div>
-                    <button class="btn-log-desconto">Logar Para Aplicar Desconto</button>
-                    <button class="btn-finalizar">Finalizar Pedido</button>
+                    <button class="btn-log-desconto" onclick='fazerLogin()'>
+                        Logar Para Aplicar Desconto
+                    </button>
+                    <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>
                 </div>
             </aside>
         </div>
     `;
+    unidadeAtual = idUnidade;
 }
 
 /*---------------------------- colocar e remover carrinho -------------------------------*/
@@ -186,7 +197,7 @@ function renderCarrinho() {
                 <span>R$ ${item.preco.toFixed(2)} x ${item.quantidade}</span>
             </div>
 
-            <div class="acoes">
+            <div class="remover">
                 <button onclick="removerDoCarrinho(${item.id})">⛔</button>
             </div>
         `;
@@ -231,6 +242,115 @@ function mostrarNotificacao(mensagem) {
     }, 2000);
 }
 
+/*-------------- Terceira tela ao clicar em logar e desconto ----------------*/
+function fazerLogin() {
+    const containerEsquerdo = document.querySelector(".cardapio-container");
+
+    containerEsquerdo.innerHTML = `
+        <div class="login-container-fidelidade">
+            <h2>LOGIN</h2>
+            <div class="form-group">
+                <input type="text" id="login-cpf-email" placeholder="CPF OU E-MAIL">
+            </div>
+            <div class="form-group">
+                <input type="password" id="login-senha" placeholder="SENHA">
+            </div>
+            <button class="btn-entrar" onclick="confirmarLogin()">ENTRAR</button>
+        </div>
+    `;
+}
+
+function confirmarLogin() {
+    const userDigitado = document.getElementById("login-cpf-email").value;
+    const senhaDigitada = document.getElementById("login-senha").value;
+    const containerEsquerdo = document.querySelector(".cardapio-container");
+
+    const usuarioEncontrado = usuariosCadastrados.find(u => u.user === userDigitado && u.senha === senhaDigitada);
+
+    if (usuarioEncontrado) {
+        usuarioLogado = usuarioEncontrado;
+        renderizarPainelPontos();
+    } else {
+        // Se não encontrar solicita cadastro
+        containerEsquerdo.innerHTML = `
+            <div class="login-container-fidelidade">
+                <h2>USUÁRIO NÃO ENCONTRADO</h2>
+                <p>Deseja realizar seu cadastro para acumular pontos?</p>
+                <button class="btn-voltar" onclick="fazerLogin()">VOLTAR</button>
+                <button class="btn-entrar" onclick="alert('Criar tela cadastro')">CADASTRAR</button>
+            </div>
+        `;
+    }
+}
+
+function renderizarPainelPontos() {
+    const containerEsquerdo = document.querySelector(".cardapio-container");
+    
+    containerEsquerdo.innerHTML = `
+        <div class="area-cliente-fidelidade">
+            <h3>BEM VINDO, ${usuarioLogado.user}!</h3>
+            <div class="total-pontos-box">
+                <span>PONTOS DISPONÍVEIS: ${usuarioLogado.pontos} PTS</span>
+            </div>
+            <div class="lista-resgate">
+                <p>Escolha seu desconto:</p>
+                <button onclick="selecionarDesconto(10, 1000)" ${usuarioLogado.pontos < 1000 ? 'disabled' : ''}>10% - 1000 PTS</button>
+                <button onclick="selecionarDesconto(20, 3000)" ${usuarioLogado.pontos < 3000 ? 'disabled' : ''}>20% - 3000 PTS</button>
+                <button onclick="selecionarDesconto(30, 5000)" ${usuarioLogado.pontos < 5000 ? 'disabled' : ''}>30% - 5000 PTS</button>
+                <button onclick="selecionarDesconto(50, 7000)" ${usuarioLogado.pontos < 7000 ? 'disabled' : ''}>50% - 7000 PTS</button>
+                </div>
+        </div>
+    `;
+}
+
+function selecionarDesconto(porcentagem, custoPontos) {
+    if (usuarioLogado.pontos >= custoPontos) {
+        descontoAtivo = porcentagem;
+        pontos = custoPontos;
+        
+        mostrarNotificacao(`Desconto de ${porcentagem}% aplicado! Foram utilizados ${custoPontos} pontos.`);
+        
+        renderizarPainelPontos();
+        atualizarVisualizacaoCarrinho();
+    } else {
+        mostrarNotificacao("Você não tem pontos suficientes para este desconto!");
+    }
+}
+
+function atualizarVisualizacaoCarrinho() {
+    const areaFooter = document.querySelector(".carrinho-footer");
+    
+    let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+    let valorDesconto = (subtotal * descontoAtivo) / 100;
+    let totalFinal = subtotal - valorDesconto;
+
+    areaFooter.innerHTML = `
+        <div class="resumo-valores">
+            <p>Subtotal: R$ ${subtotal.toFixed(2)}</p>
+            ${descontoAtivo > 0 ? `<p>Desconto (${descontoAtivo}%): - R$ ${valorDesconto.toFixed(2)}</p>` : ''}
+            <div class="total">Total: <strong>R$ ${totalFinal.toFixed(2)}</strong></div>
+        </div>
+        
+        ${descontoAtivo > 0 
+            ? `<button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>` 
+            : `<button class="btn-log-desconto" onclick="fazerLogin()">Logar Para Aplicar Desconto</button>`
+        }
+    `;
+}
+
+function resetarCompra() {
+    carrinho = [];
+    
+    descontoAtivo = 0;
+    custoPontosPendente = 0; 
+
+    renderCarrinho();
+    
+    if (document.querySelector(".area-cliente-fidelidade")) {
+        renderizarPainelPontos();
+    }
+}
+
 /*-------------- Inicializa o mapa com OpenStreetMap ----------------*/
 function iniciarMapa() {
     mapa = L.map('mapa').setView([-8.0476, -34.8770], 7);
@@ -258,9 +378,10 @@ function voltarParaHome() {
             </div>
         </div>
     `;
-    
+
     iniciarMapa();
     renderHome();
+    resetarCompra();
 }
 
 /*---------------------- Inicializa o sistema  --------------------------*/

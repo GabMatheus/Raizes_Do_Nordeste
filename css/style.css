@@ -22,7 +22,7 @@ h1, h2, h3 {
   font-family: 'Poppins', sans-serif;
 }
 
-/* --------------------------- cabeçalho ------------------------*/
+/* --------------------------- Cabeçalho -------------------------*/
 header {
   background-color: #8B4513;
   border-bottom: 3px solid #daa520;
@@ -73,7 +73,57 @@ header {
   color: #fff;
 }
 
-/*---------------- TELA 1 - Lista de unidades e Mapa --------------------------*/
+.btn-log-desconto {
+    width: 100%;
+    background: #e2f81f;
+    color: black;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-log-desconto:hover {
+    background: #fbff2c;
+}
+
+.btn-finalizar,
+.btn-entrar {
+    width: 100%;
+    background: #16ca43;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-finalizar:hover,
+.btn-entrar:hover {
+    background: #118f2f;
+}
+
+.btn-voltar {
+      width: 100%;
+    background: #f1635ee8;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-voltar:hover {
+  background: #ec2c1ee8;
+}
+
+/*---------------- Tela 1 - Lista de unidades e Mapa --------------------------*/
 .container {
     flex: 1;
     display: flex;
@@ -113,7 +163,7 @@ header {
   height: 100%;
 }
 
-/*-----------responsividade para celulares, totem e outras telas-----------------*/
+/*----------------- responsividade da tela --------------------*/
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -169,7 +219,7 @@ header {
   
 }
 
-/*---------------Card matriz e filiais-----------------------*/
+/*-------------------- Card matriz e filiais -----------------------*/
 .card-unidade {
   display: flex;
   justify-content: space-between;
@@ -237,7 +287,7 @@ button:hover {
     color: #D2B48C;
 }
 
-/*---------------------------informações sobre, contato-----------------------*/
+/*--------------------------- informações sobre, contato -----------------------*/
 .informacoes {
     max-width: 800px;
     margin: 40px auto;
@@ -262,7 +312,7 @@ button:hover {
     font-size: 1.2rem;
 }
 
-/*-------------------------- tela 2 cardapio---------------------------------*/
+/*-------------------------- tela 2 cardapio ---------------------------------*/
 .cardapio-container {
     max-width: 800px;
     margin: 20px auto;
@@ -376,6 +426,7 @@ button:hover {
     transform: scale(1.02);
 }
 
+/*--------------------- Responsividade da tela -------------------- */
 @media (max-width: 768px) {
     .cardapio-container {
         padding: 10px;
@@ -391,7 +442,7 @@ button:hover {
     }
 }
 
-/*---------------------------- Carrinho ---------------------------------*/
+/*----------------------------- Tela 2 - Carrinho ---------------------------------*/
 .cardapio-layout {
     display: flex;
     max-width: 1200px;
@@ -435,38 +486,6 @@ button:hover {
     margin-bottom: 15px;
 }
 
-.btn-log-desconto {
-    width: 100%;
-    background: #e2f81f;
-    color: black;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.btn-log-desconto:hover {
-    background: #fbff2c;
-}
-
-.btn-finalizar {
-    width: 100%;
-    background: #16ca43;
-    color: white;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.btn-finalizar:hover {
-    background: #118f2f;
-}
-
 .item-carrinho {
     display: flex;
     justify-content: space-between;
@@ -480,7 +499,7 @@ button:hover {
     flex-direction: column;
 }
 
-.item-carrinho .acoes {
+.item-carrinho .remover {
     display: flex;
     align-items: center;
 }
@@ -492,6 +511,7 @@ button:hover {
     font-size: 18px;
 }
 
+/*---------------------- Responsividade da tela -----------------------*/
 @media (max-width: 900px) {
     .cardapio-layout {
         flex-direction: column;
@@ -502,8 +522,7 @@ button:hover {
     }
 }
 
-/* ---------------------------- spam notificações ----------------------*/
-
+/* ---------------------------- span notificações ----------------------*/
 .notificacao {
     position: fixed;
     bottom: 20px;
@@ -531,6 +550,148 @@ button:hover {
         transform: translateY(0);
     }
 }
+
+/*------------------------- Terceira tela ------------------------------*/
+.area-cliente-fidelidade {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.area-cliente-fidelidade h3 {
+    color: #8B4513;
+    font-size: 24px;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #DAA520;
+    display: inline-block;
+}
+
+.total-pontos-box {
+    background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+    border-radius: 12px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.total-pontos-box span {
+    font-size: 28px;
+    color: #F5E6C8;
+    font-weight: bold;
+}
+
+.total-pontos-box strong {
+    color: #DAA520;
+    font-size: 32px;
+    margin-left: 10px;
+}
+
+.lista-resgate {
+    margin-top: 30px;
+}
+
+.lista-resgate p {
+    font-size: 18px;
+    color: #3E2723;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+.login-container-fidelidade {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    max-width: 450px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.login-container-fidelidade h2 {
+    color: #8B4513;
+    font-size: 28px;
+    margin-bottom: 30px;
+    border-bottom: 3px solid #DAA520;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.login-container-fidelidade p {
+    color: #666;
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #D2B48C;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #DAA520;
+    box-shadow: 0 0 5px rgba(218, 165, 32, 0.3);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #3E2723;
+    font-weight: 500;
+}
+
+/* -------------------- Responsividade da tela -------------------------*/
+@media (max-width: 768px) {
+    .area-cliente-fidelidade {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .area-cliente-fidelidade h3 {
+        font-size: 20px;
+    }
+    
+    .total-pontos-box span {
+        font-size: 20px;
+    }
+    
+    .total-pontos-box strong {
+        font-size: 24px;
+    }
+    
+    .lista-resgate button {
+        width: 95%;
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    .login-container-fidelidade {
+        padding: 25px;
+        margin: 10px;
+    }
+    
+    .login-container-fidelidade h2 {
+        font-size: 24px;
+    }
+    
+    .form-group input {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+}
+
 
 /*----------------------------- Rodapé --------------------------------*/
 footer {
