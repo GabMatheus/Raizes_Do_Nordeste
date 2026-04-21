@@ -148,7 +148,6 @@ async function abrirCardapio(idUnidade) {
     `;
 }
 
-
 /*---------------------------- colocar e remover carrinho -------------------------------*/
 function adicionarAoCarrinho(produto){
     const itemRepetido = carrinho.find(item => item.id === produto.id);
@@ -188,7 +187,7 @@ function renderCarrinho() {
             </div>
 
             <div class="acoes">
-                <button onclick="removerDoCarrinho(${item.id})">🗑️</button>
+                <button onclick="removerDoCarrinho(${item.id})">⛔</button>
             </div>
         `;
 
