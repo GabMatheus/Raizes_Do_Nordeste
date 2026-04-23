@@ -406,6 +406,113 @@ function resetarCompra() {
     }
 }
 
+/*------------- Finalizar pedido, forma de pagto e acompanhar status ----------- */
+function finalizarPedido() {
+    const container = document.querySelector(".cardapio-container");
+    
+    let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+    let valorDesconto = 0;
+    let totalFinal = subtotal;
+
+    // Cliente logado 
+    if (usuarioLogado) {
+        valorDesconto = (subtotal * descontoAtivo) / 100;
+        totalFinal = subtotal - valorDesconto;
+    } 
+
+    // Cliente não logado 
+    container.innerHTML = `
+        <div class="checkout-grid">
+            <div class="painel-pagamento">
+                <h3>PAGAMENTO 💰</h3>
+                <div class="recibo">
+                    ${carrinho.map(item => `<p>* ${item.nome} .... R$ ${item.preco.toFixed(2)}</p>`).join('')}
+                    <hr>
+                    <p>DESC: R$ ${valorDesconto.toFixed(2)}</p>
+                    <p><strong>TOTAL: R$ ${totalFinal.toFixed(2)}</strong></p>
+                </div>
+                <div class="metodos">
+                    <button onclick="iniciarPagamento('Dinheiro')">Dinheiro</button>
+                    <button onclick="iniciarPagamento('Cartão')">Cartão</button>
+                    <button onclick="iniciarPagamento('Pix')">Pix</button>
+                </div>
+            </div>
+            <div class="painel-status" id="status-checkout">
+                <p>Selecione o pagamento para continuar.</p>
+            </div>
+        </div>
+    `;
+}
+
+function iniciarPagamento(metodo) {
+    const areaStatus = document.getElementById("status-checkout");
+    let segundos = 3;
+
+    areaStatus.innerHTML = `<div class="timer-regressivo">Conectando ao banco... ${segundos}s</div>`;
+
+    const cronometro = setInterval(() => {
+        segundos--;
+        document.querySelector(".timer-regressivo").innerText = `Conectando ao banco... ${segundos}s`;
+
+        if (segundos <= 0) {
+            clearInterval(cronometro);
+            statusPreparo();
+        }
+    }, 1000);
+}
+
+function statusPreparo() {
+    const areaStatus = document.getElementById("status-checkout");
+    
+    if (usuarioLogado && pontos > 0) {
+        usuarioLogado.pontos -= pontos;
+        pontos = 0;
+        descontoAtivo = 0;
+        renderizarPainelPontos();
+        mostrarNotificacao("Pontos do desconto utilizados!");
+    }
+
+    areaStatus.innerHTML = `
+        <h3>ACOMPANHAR STATUS ⌛</h3>
+        <div class="timeline">
+            <div class="pagto-aprovado">PAGAMENTO APROVADO ✅</div>
+            <div class="pedido-preparando">EM PREPARO... ⏳</div>
+            <div class="pedido-entrega">ENTREGA ⚪</div>
+        </div>
+    `;
+
+    setTimeout(() => {
+        finalizarEntregaEPontuar();
+    }, 4000);
+}
+
+function finalizarEntregaEPontuar() {
+    const areaStatus = document.getElementById("status-checkout");
+
+    if (usuarioLogado) {
+        usuarioLogado.pontos += 300;
+        renderizarPainelPontos();
+        mostrarNotificacao("Parabéns! Ganhou 300 pontos pela compra.");
+    }
+
+    carrinho = [];
+    descontoAtivo = 0;
+    pontos = 0;
+
+    renderCarrinho();
+    atualizarVisualizacaoCarrinho();
+
+    areaStatus.innerHTML = `
+        <h3>PEDIDO ENTREGUE!</h3>
+        <p>Seu novo saldo: <strong>${usuarioLogado ? usuarioLogado.pontos : 0} PTS</strong></p>
+        <div class="banner-final">
+            <p>Obrigado pela preferência!</p>
+            <button onclick="voltarParaHome()">VOLTAR AO INÍCIO</button>
+        </div>
+    `;
+}
+
+
 /*-------------- Inicializa o mapa com OpenStreetMap ----------------*/
 function iniciarMapa() {
     mapa = L.map('mapa').setView([-8.0476, -34.8770], 7);
