@@ -8,9 +8,11 @@ const usuariosCadastrados = [
     { user: "teste", senha: "123", pontos: 7000 },
     { user: "teste2", senha: "222" , pontos:3000 }
 ];
+let unidadeAtual = null;
 let usuarioLogado = null;
 let descontoAtivo = 0;
 let pontos = 0;
+let descontoAplicado = false;
 
 /*----------------------- Carrega os dados do arquivo JSON ------------------------*/
 async function carregarDados() {
@@ -48,9 +50,11 @@ async function renderContato() {
 
 /*------------------- Renderiza a página inicial com os cards das unidades -----------------*/
 async function renderHome() {
-    if (dados.length === 0 || !dados.unidades) {
+    if (dados.length === 0) {
         await carregarDados();
     }
+
+    if (!dados.unidades) return;
 
     const lista = document.getElementById("lista");
     let html = "<h2>Selecione a unidade</h2>";
@@ -75,12 +79,28 @@ async function renderHome() {
     lista.innerHTML = html;
 }
 
+function renderUsuario() {
+    const area = document.getElementById("area-usuario");
+    if (!area) return;
+
+    if (usuarioLogado) {
+        area.innerHTML = `
+            <span onclick="renderizarPainelPontos()">${usuarioLogado.user} (Ver Pontos)</span>
+            <button onclick="logout()">Sair</button>
+        `;
+    } else {
+        area.innerHTML = `<button onclick="fazerLogin()">Entrar</button>`;
+    }
+}
+
 /* ----------------------------segunda tela ------------------------------- */
-async function abrirCardapio(idUnidade) {
+async function abrirCardapio(idUnidade, manterCarrinho = false) {
     const main = document.getElementById("conteudo-principal");
     const unidade = dados.unidades.find(u => u.id === idUnidade);
+    
+    unidadeAtual = idUnidade;
+    
     const produtosPorCategoria = {};
-
     unidade.produtos.forEach(produto => {
         if (!produtosPorCategoria[produto.categoria]) {
             produtosPorCategoria[produto.categoria] = [];
@@ -144,19 +164,40 @@ async function abrirCardapio(idUnidade) {
                     <h3>🛒 Seu Pedido</h3>
                 </div>
                 <div id="itens-carrinho">
-                    <p style="color: #666; text-align: center;">Carrinho vazio</p>
+                    ${carrinho.length === 0 ? '<p>Carrinho vazio</p>' : ''}
                 </div>
                 <div class="carrinho-footer">
-                    <div class="total">Total: <strong>R$ 0,00</strong></div>
-                    <button class="btn-log-desconto" onclick='fazerLogin()'>
-                        Logar Para Aplicar Desconto
-                    </button>
+                    <div class="total" id="ver-total">Total: <strong>R$ ${calcularTotalCarrinho().toFixed(2)}</strong></div>
+
+                    ${usuarioLogado 
+                        ? `
+                        <div class="fidelidade-checkout">
+                            <p>Você tem <strong>${usuarioLogado.pontos} pts</strong></p>
+                            <select id="selecao-desconto" onchange="aplicarDescontoFidelidade(this.value)" style="width: 100%; padding: 5px; margin-bottom: 10px;">
+                                <option value="0">Não usar pontos</option>
+                                <option value="10" ${usuarioLogado.pontos < 1000 ? 'disabled' : ''}>10% OFF (1000 pts)</option>
+                                <option value="20" ${usuarioLogado.pontos < 3000 ? 'disabled' : ''}>20% OFF (3000 pts)</option>
+                                <option value="50" ${usuarioLogado.pontos < 7000 ? 'disabled' : ''}>50% OFF (7000 pts)</option>
+                            </select>
+                        </div>
+                        ` 
+                        : `<button class="btn-log-desconto" onclick='fazerLogin()'>Logar Para Aplicar Desconto</button>`
+                    }
                     <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>
                 </div>
             </aside>
         </div>
     `;
-    unidadeAtual = idUnidade;
+    
+    // Renderiza o carrinho se tiver itens
+    if (carrinho.length > 0) {
+        renderCarrinho();
+        atualizarTotalCarrinho();
+    }
+}
+
+function calcularTotalCarrinho() {
+    return carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
 }
 
 /*---------------------------- colocar e remover carrinho -------------------------------*/
@@ -183,11 +224,37 @@ function adicionarAoCarrinho(produto){
 
 }
 
+/*---------------- pegar status carrinho qd finalizar compra e clicar para logar ------ */
+function voltarParaCardapioComCarrinho() {
+    const carrinhoSalvo = sessionStorage.getItem('carrinhoAntesLogin');
+    const unidadeSalva = sessionStorage.getItem('unidadeAntesLogin');
+    
+    if (carrinhoSalvo) {
+        carrinho = JSON.parse(carrinhoSalvo);
+    }
+    
+    if (unidadeSalva && unidadeSalva !== 'null') {
+        abrirCardapio(parseInt(unidadeSalva));
+    } else {
+        voltarParaHome();
+    }
+    
+    sessionStorage.removeItem('carrinhoAntesLogin');
+    sessionStorage.removeItem('unidadeAntesLogin');
+}
+
 function renderCarrinho() {
     const lista = document.querySelector('#itens-carrinho');
-    lista.innerHTML = '';
 
     if (!lista) return;
+
+    lista.innerHTML = '';
+
+    if (carrinho.length === 0) {
+        lista.innerHTML = '<p>Carrinho vazio</p>';
+        return;
+    }
+
     carrinho.forEach(item => {
         const div = document.createElement('div');
         div.className = 'item-carrinho';
@@ -245,9 +312,12 @@ function mostrarNotificacao(mensagem) {
 
 /*-------------- Terceira tela ao clicar em logar e desconto ----------------*/
 function fazerLogin() {
-    const containerEsquerdo = document.querySelector(".cardapio-container");
+    const main = document.getElementById("conteudo-principal");
 
-    containerEsquerdo.innerHTML = `
+    sessionStorage.setItem('carrinhoAntesLogin', JSON.stringify(carrinho));
+    sessionStorage.setItem('unidadeAntesLogin', unidadeAtual);
+    
+    main.innerHTML = `
         <div class="login-container-fidelidade">
             <h2>LOGIN</h2>
             <div class="form-group">
@@ -257,6 +327,7 @@ function fazerLogin() {
                 <input type="password" id="login-senha" placeholder="SENHA">
             </div>
             <button class="btn-entrar" onclick="confirmarLogin()">ENTRAR</button>
+            <button class="btn-voltar" onclick="voltarParaHome()">VOLTAR</button>
         </div>
     `;
 }
@@ -264,16 +335,32 @@ function fazerLogin() {
 function confirmarLogin() {
     const userDigitado = document.getElementById("login-cpf-email").value;
     const senhaDigitada = document.getElementById("login-senha").value;
-    const containerEsquerdo = document.querySelector(".cardapio-container");
-
     const usuarioEncontrado = usuariosCadastrados.find(u => u.user === userDigitado && u.senha === senhaDigitada);
 
     if (usuarioEncontrado) {
         usuarioLogado = usuarioEncontrado;
-        renderizarPainelPontos();
+
+        renderUsuario();
+        mostrarNotificacao(`Bem-vindo, ${usuarioLogado.user}!`);
+        voltarParaCardapioComCarrinho();
+
+        setTimeout(() => {
+            const selectDesconto = document.getElementById("selecao-desconto");
+            if (selectDesconto) {
+                const option10 = selectDesconto.querySelector('option[value="10"]');
+                const option20 = selectDesconto.querySelector('option[value="20"]');
+                const option50 = selectDesconto.querySelector('option[value="50"]');
+                
+                if (option10) option10.disabled = usuarioLogado.pontos < 1000;
+                if (option20) option20.disabled = usuarioLogado.pontos < 3000;
+                if (option50) option50.disabled = usuarioLogado.pontos < 7000;
+            }
+        }, 100);
+
     } else {
         // Se não encontrar solicita cadastro
-        containerEsquerdo.innerHTML = `
+        const container = document.querySelector(".login-container-fidelidade") || document.getElementById("conteudo-principal");
+        main.innerHTML = `
             <div class="login-container-fidelidade">
                 <h2>USUÁRIO NÃO ENCONTRADO</h2>
                 <p>Deseja realizar seu cadastro para acumular pontos?</p>
@@ -281,6 +368,20 @@ function confirmarLogin() {
                 <button class="btn-entrar" onclick="abrirTermoLGPD()">CADASTRAR</button>
             </div>
         `;
+    }
+}
+
+function logout() {
+    usuarioLogado = null;
+    descontoAtivo = 0;
+    pontos = 0;
+
+    renderUsuario();
+    mostrarNotificacao("Você saiu da conta.");
+    if (unidadeAtual) {
+        abrirCardapio(unidadeAtual);
+    } else {
+        voltarParaHome();
     }
 }
 
@@ -314,11 +415,12 @@ function confirmarAceiteLGPD() {
 }
 
 function irParaTelaCadastro() {
-    const containerEsquerdo = document.querySelector(".cardapio-container");
-    
-    containerEsquerdo.innerHTML = `
+    const main = document.getElementById("conteudo-principal");
+    if (!main) return;
+
+    main.innerHTML = `
         <div class="login-container-fidelidade">
-            <h2>CADASTRO</h2>
+            <h2>CRIAR CONTA</h2>
             <div class="form-group">
                 <input type="text" id="novo-nome" placeholder="NOME COMPLETO">
             </div>
@@ -339,21 +441,20 @@ function salvarNovoUsuario(){
 }
 
 function renderizarPainelPontos() {
-    const containerEsquerdo = document.querySelector(".cardapio-container");
+    const main = document.getElementById("conteudo-principal");
+    if (!main) return;
     
-    containerEsquerdo.innerHTML = `
+    main.innerHTML = `
         <div class="area-cliente-fidelidade">
-            <h3>BEM VINDO, ${usuarioLogado.user}!</h3>
-            <div class="total-pontos-box">
-                <span>PONTOS DISPONÍVEIS: ${usuarioLogado.pontos} PTS</span>
-            </div>
-            <div class="lista-resgate">
-                <p>Escolha seu desconto:</p>
-                <button onclick="selecionarDesconto(10, 1000)" ${usuarioLogado.pontos < 1000 ? 'disabled' : ''}>10% - 1000 PTS</button>
-                <button onclick="selecionarDesconto(20, 3000)" ${usuarioLogado.pontos < 3000 ? 'disabled' : ''}>20% - 3000 PTS</button>
-                <button onclick="selecionarDesconto(30, 5000)" ${usuarioLogado.pontos < 5000 ? 'disabled' : ''}>30% - 5000 PTS</button>
-                <button onclick="selecionarDesconto(50, 7000)" ${usuarioLogado.pontos < 7000 ? 'disabled' : ''}>50% - 7000 PTS</button>
+            <h3>MINHA CONTA</h3>
+            <div class="perfil-info">
+                <p>Usuário: <strong>${usuarioLogado.user}</strong></p>
+                <div class="total-pontos-box">
+                    <p>SALDO ATUAL</p>
+                    <span class="pts-destaque">${usuarioLogado.pontos} PTS</span>
                 </div>
+            </div>
+            <button class="btn-voltar" onclick="voltarParaHome()">VOLTAR PARA O INÍCIO</button>
         </div>
     `;
 }
@@ -374,6 +475,11 @@ function selecionarDesconto(porcentagem, custoPontos) {
 
 function atualizarVisualizacaoCarrinho() {
     const areaFooter = document.querySelector(".carrinho-footer");
+
+    if (!areaFooter) {
+        console.log("Elemento .carrinho-footer não encontrado na tela atual");
+        return;
+    }
     
     let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
     let valorDesconto = (subtotal * descontoAtivo) / 100;
@@ -386,8 +492,8 @@ function atualizarVisualizacaoCarrinho() {
             <div class="total">Total: <strong>R$ ${totalFinal.toFixed(2)}</strong></div>
         </div>
         
-        ${descontoAtivo > 0 
-            ? `<button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>` 
+        ${usuarioLogado 
+            ? `<button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>`
             : `<button class="btn-log-desconto" onclick="fazerLogin()">Logar Para Aplicar Desconto</button>`
         }
     `;
@@ -395,11 +501,14 @@ function atualizarVisualizacaoCarrinho() {
 
 function resetarCompra() {
     carrinho = [];
-    
     descontoAtivo = 0;
-    custoPontosPendente = 0; 
+    pontos = 0;
 
-    renderCarrinho();
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    
+    if (document.querySelector('#itens-carrinho')) {
+        renderCarrinho();
+    }
     
     if (document.querySelector(".area-cliente-fidelidade")) {
         renderizarPainelPontos();
@@ -408,40 +517,100 @@ function resetarCompra() {
 
 /*------------- Finalizar pedido, forma de pagto e acompanhar status ----------- */
 function finalizarPedido() {
-    const container = document.querySelector(".cardapio-container");
+    const main = document.getElementById("conteudo-principal");
     
+    if (carrinho.length === 0) {
+        mostrarNotificacao("Seu carrinho está vazio!");
+        return;
+    }
+
     let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
     let valorDesconto = 0;
     let totalFinal = subtotal;
 
-    // Cliente logado 
-    if (usuarioLogado) {
+    if (usuarioLogado && descontoAtivo > 0) {
         valorDesconto = (subtotal * descontoAtivo) / 100;
         totalFinal = subtotal - valorDesconto;
-    } 
+    }
 
-    // Cliente não logado 
-    container.innerHTML = `
+    // 3. Renderização da tela de Checkout
+    main.innerHTML = `
         <div class="checkout-grid">
             <div class="painel-pagamento">
-                <h3>PAGAMENTO 💰</h3>
+                <h3>RESUMO DO PAGAMENTO</h3>
+                
                 <div class="recibo">
-                    ${carrinho.map(item => `<p>* ${item.nome} .... R$ ${item.preco.toFixed(2)}</p>`).join('')}
+                    <div class="itens-recibo">
+                        ${carrinho.map(item => `
+                            <p><span>${item.quantidade}x ${item.nome}</span> <span>R$ ${(item.preco * item.quantidade).toFixed(2)}</span></p>
+                        `).join('')}
+                    </div>   
+
                     <hr>
-                    <p>DESC: R$ ${valorDesconto.toFixed(2)}</p>
-                    <p><strong>TOTAL: R$ ${totalFinal.toFixed(2)}</strong></p>
+
+                    <div class="valores-finais">
+                        <p>Subtotal: R$ ${subtotal.toFixed(2)}</p>
+                        ${valorDesconto > 0 ? `<p class="desconto-aplicado">Desconto (${descontoAtivo}%): - R$ ${valorDesconto.toFixed(2)}</p>` : ''}
+                        <p class="total-destaque"><strong>TOTAL: R$ ${totalFinal.toFixed(2)}</strong></p>
+                    </div>
+
+                    ${usuarioLogado && pontos > 0 ? `
+                        <div class="aviso-pontos">
+                            <small>Descontados ${pontos} pontos do seu saldo.</small>
+                        </div>
+                    ` : ''}
                 </div>
+
+                <h4>Selecione o método de pagamento:</h4>
                 <div class="metodos">
-                    <button onclick="iniciarPagamento('Dinheiro')">Dinheiro</button>
-                    <button onclick="iniciarPagamento('Cartão')">Cartão</button>
-                    <button onclick="iniciarPagamento('Pix')">Pix</button>
+                    <button class="btn-pgto" onclick="iniciarPagamento('Dinheiro')">💵 Dinheiro</button>
+                    <button class="btn-pgto" onclick="iniciarPagamento('Cartão')">💳 Cartão</button>
+                    <button class="btn-pgto" onclick="iniciarPagamento('Pix')">🏦 Pix</button>
                 </div>
+                
+                <button class="btn-voltar-checkout" onclick="voltarParaHome()">CANCELAR E VOLTAR</button>
             </div>
+
             <div class="painel-status" id="status-checkout">
-                <p>Selecione o pagamento para continuar.</p>
+                <div class="aguardando-pagto">
+                    <p>Aguardando confirmação do pagamento...</p>
+                    <div class="spinner"></div>
+                </div>
             </div>
         </div>
     `;
+}
+
+function aplicarDescontoFidelidade(porcentagem) {
+    if (!usuarioLogado) return;
+    
+    let custoPontos = 0;
+    if (porcentagem == 10) custoPontos = 1000;
+    else if (porcentagem == 20) custoPontos = 3000;
+    else if (porcentagem == 50) custoPontos = 7000;
+    
+    if (porcentagem == 0) {
+        descontoAtivo = 0;
+        pontos = 0;
+        descontoAplicado = false;
+        atualizarVisualizacaoCarrinho();
+        mostrarNotificacao("Opção sem desconto selecionada");
+        return;
+    }
+    
+    if (usuarioLogado.pontos >= custoPontos && !descontoAplicado) {
+        descontoAtivo = parseInt(porcentagem);
+        pontos = custoPontos;
+        descontoAplicado = true;
+        atualizarVisualizacaoCarrinho();
+        mostrarNotificacao(`Desconto de ${porcentagem}% aplicado! Serão debitados ${custoPontos} pontos`);
+    } else if (usuarioLogado.pontos < custoPontos) {
+        mostrarNotificacao(`Pontos insuficientes! Você tem ${usuarioLogado.pontos} pontos`);
+        document.getElementById("selecao-desconto").value = "0";
+        descontoAtivo = 0;
+        pontos = 0;
+        descontoAplicado = false;
+    }
 }
 
 function iniciarPagamento(metodo) {
@@ -465,11 +634,16 @@ function statusPreparo() {
     const areaStatus = document.getElementById("status-checkout");
     
     if (usuarioLogado && pontos > 0) {
+        const pontosAntes = usuarioLogado.pontos;
         usuarioLogado.pontos -= pontos;
+        
+        console.log(`Debitando ${pontos} pontos. Saldo anterior: ${pontosAntes}, Novo saldo: ${usuarioLogado.pontos}`);
+        
+        mostrarNotificacao(`Foram debitados ${pontos} pontos pelo desconto!`);
+        
         pontos = 0;
         descontoAtivo = 0;
-        renderizarPainelPontos();
-        mostrarNotificacao("Pontos do desconto utilizados!");
+        descontoAplicado = false;
     }
 
     areaStatus.innerHTML = `
@@ -489,6 +663,8 @@ function statusPreparo() {
 function finalizarEntregaEPontuar() {
     const areaStatus = document.getElementById("status-checkout");
 
+    if (!areaStatus) return;
+
     if (usuarioLogado) {
         usuarioLogado.pontos += 300;
         renderizarPainelPontos();
@@ -499,18 +675,35 @@ function finalizarEntregaEPontuar() {
     descontoAtivo = 0;
     pontos = 0;
 
-    renderCarrinho();
-    atualizarVisualizacaoCarrinho();
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+
+    if (document.querySelector('#itens-carrinho')) {
+        renderCarrinho();
+        atualizarVisualizacaoCarrinho();
+    }
 
     areaStatus.innerHTML = `
         <h3>PEDIDO ENTREGUE!</h3>
-        <p>Seu novo saldo: <strong>${usuarioLogado ? usuarioLogado.pontos : 0} PTS</strong></p>
+        ${usuarioLogado ? `
+                <p>Seu novo saldo: <strong>${usuarioLogado.pontos} PTS</strong></p>
+            ` : `
+                <p>Você ganhou <strong>+300 PONTOS</strong> nesta compra!</p>
+                <p>Crie uma conta para não perder seus pontos.</p>
+        `}
+        
         <div class="banner-final">
             <p>Obrigado pela preferência!</p>
-            <button onclick="voltarParaHome()">VOLTAR AO INÍCIO</button>
+            
+            <button onclick="voltarParaHome()">🏠 Home</button>
+                ${!usuarioLogado ? `
+                <button onclick="abrirTermoLGPD()">🔥 Criar conta e resgatar pontos</button>
+             ` : `
+                <button onclick="renderizarPainelPontos()">Ver meus pontos</button>
+            `}
         </div>
     `;
 }
+
 
 
 /*-------------- Inicializa o mapa com OpenStreetMap ----------------*/
@@ -532,6 +725,10 @@ function moverMapa(lat, lng) {
 /*---------------- Volta para a tela inicial ---------------------*/
 function voltarParaHome() {
     const main = document.getElementById("conteudo-principal");
+
+    if (mapa) {
+        mapa.remove();
+    }
     main.innerHTML = `
         <div id="home">
             <div id="lista"></div>
@@ -544,10 +741,18 @@ function voltarParaHome() {
     iniciarMapa();
     renderHome();
     resetarCompra();
+    renderUsuario();
 }
 
 /*---------------------- Inicializa o sistema  --------------------------*/
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    await carregarDados();
     iniciarMapa();
     renderHome();
+    renderUsuario();
+    
+    const carrinhoSalvo = localStorage.getItem('carrinho');
+    if (carrinhoSalvo) {
+        carrinho = JSON.parse(carrinhoSalvo);
+    }
 });
