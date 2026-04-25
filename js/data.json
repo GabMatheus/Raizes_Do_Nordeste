@@ -33,7 +33,7 @@
       "coords": { "lat": -8.0124, "lng": -34.8603 },
       "produtos": [
         { "id": 11, "nome": "Cuscuz Recheado", "descricao": "Com carne seca", "preco": 10.90, "categoria": "cafe", "foto": "assets/img/cuscuz.jpg" },
-        { "id": 12, "nome": "Tapioca", "descricao": "Com frango desfiado", "preco": 9.50, "categoria": "cafe", "foto": "assets/img/tapioca.jpg" },
+        { "id": 12, "nome": "Tapioca", "descricao": "Tapioca com morango e leite condensado", "preco": 9.50, "categoria": "cafe", "foto": "assets/img/tapioca.jpg" },
         { "id": 13, "nome": "Canjica", "descricao": "Com leite condensado e coco", "preco": 9.90, "categoria": "cafe", "foto": "assets/img/canjica.jpg" },
         { "id": 14, "nome": "Feijoada", "descricao": "Feijão preto com complementos suínos", "preco": 26.90, "categoria": "almoco", "foto": "assets/img/feijoada.jpg" },
         { "id": 15, "nome": "Pastel", "descricao": "Queijo", "preco": 7.90, "categoria": "lanche", "foto": "assets/img/pastel.jpg" },
