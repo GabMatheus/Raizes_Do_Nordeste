@@ -125,12 +125,13 @@ async function abrirCardapio(idUnidade, manterCarrinho = false) {
     unidadeAtual = idUnidade;
     
     const produtosPorCategoria = {};
-    unidade.produtos.forEach(produto => {
+    
+    for (const produto of unidade.produtos) {
         if (!produtosPorCategoria[produto.categoria]) {
             produtosPorCategoria[produto.categoria] = [];
         }
         produtosPorCategoria[produto.categoria].push(produto);
-    });
+    }
     
     const nomeCategorias = {
         'cafe': '☕ Café da Manhã',
@@ -146,7 +147,8 @@ async function abrirCardapio(idUnidade, manterCarrinho = false) {
         const nomeCategoria = nomeCategorias[categoria] || categoria;
         
         let produtosHTML = '';
-        produtos.forEach(produto => {
+        
+        for (const produto of produtos) {
             produtosHTML += `
                 <div class="card-produto">
                     <img src="${produto.foto}" alt="${produto.nome}">
@@ -160,7 +162,7 @@ async function abrirCardapio(idUnidade, manterCarrinho = false) {
                     </div>
                 </div>
             `;
-        });
+        }
         
         categoriasHTML += `
             <div class="categoria">
@@ -283,7 +285,7 @@ function renderCarrinho() {
         return;
     }
 
-    carrinho.forEach(item => {
+    for (const item of carrinho) {
         const div = document.createElement('div');
         div.className = 'item-carrinho';
 
@@ -299,7 +301,7 @@ function renderCarrinho() {
         `;
 
         lista.appendChild(div);
-    });
+    }
 }
 
 function atualizarTotalCarrinho() {
