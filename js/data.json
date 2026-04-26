@@ -18,7 +18,7 @@
         { "id": 6, "nome": "Bolo de Milho", "descricao": "Bolo caseiro de milho", "preco": 8.90, "categoria": "doce", "foto": "assets/img/bolo_milho.jpg" },
         { "id": 7, "nome": "Coca-Cola", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca.jpg" },
         { "id": 8, "nome": "Coca-Cola Zero", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca_zero.jpg" },
-        { "id": 9, "nome": "Guaraná", "descricao": "Lata 350ml", "preco": 5.50, "categoria": "bebida", "foto": "assets/img/guarana.jpg" },
+        { "id": 9, "nome": "Cajuína", "descricao": "Garrafa de suco tradicional", "preco": 10.50, "categoria": "bebida", "foto": "assets/img/cajuina.jpg" },
         { "id": 10, "nome": "Água Mineral", "descricao": "500ml", "preco": 3.00, "categoria": "bebida", "foto": "assets/img/agua.jpg" }
       ]
     },
@@ -81,7 +81,8 @@
         { "id": 33, "nome": "Coca-Cola", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca.jpg" },
         { "id": 34, "nome": "Coca-Cola Zero", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca_zero.jpg" },
         { "id": 35, "nome": "Guaraná", "descricao": "Lata 350ml", "preco": 5.50, "categoria": "bebida", "foto": "assets/img/guarana.jpg" },
-        { "id": 36, "nome": "Água Mineral", "descricao": "500ml", "preco": 3.00, "categoria": "bebida", "foto": "assets/img/agua.jpg" }
+        { "id": 36, "nome": "Água Mineral", "descricao": "500ml", "preco": 3.00, "categoria": "bebida", "foto": "assets/img/agua.jpg" },
+        { "id": 45, "nome": "Cajuína", "descricao": "Garrafa de suco tradicional", "preco": 10.50, "categoria": "bebida", "foto": "assets/img/cajuina.jpg" }
       ]
     },
     {
@@ -99,7 +100,7 @@
         { "id": 39, "nome": "PF Executivo", "descricao": "Tradicional", "preco": 26.90, "categoria": "almoco", "foto": "assets/img/pf.jpg" },
         { "id": 40, "nome": "Bolo de Macaxeira", "descricao": "Doce", "preco": 9.90, "categoria": "doce", "foto": "assets/img/bolo_macaxeira.jpg" },
         { "id": 41, "nome": "Coca-Cola", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca.jpg" },
-        { "id": 42, "nome": "Coca-Cola Zero", "descricao": "Lata 350ml", "preco": 6.00, "categoria": "bebida", "foto": "assets/img/coca_zero.jpg" },
+        { "id": 42, "nome": "Cajuína", "descricao": "Garrafa de suco tradicional", "preco": 12.00, "categoria": "bebida", "foto": "assets/img/cajuina.jpg" },
         { "id": 43, "nome": "Guaraná", "descricao": "Lata 350ml", "preco": 5.50, "categoria": "bebida", "foto": "assets/img/guarana.jpg" },
         { "id": 44, "nome": "Água Mineral", "descricao": "500ml", "preco": 3.00, "categoria": "bebida", "foto": "assets/img/agua.jpg" }
       ]
