@@ -56,7 +56,8 @@ header {
 }
 
 .nav-opcoes a, 
-#btn-sobre, #btn-contato, #btn-inicio {
+#btn-sobre, #btn-contato, #btn-inicio,
+#area-usuario span {
   background: #D2B48C;
   border: none;
   color: #000;
@@ -67,8 +68,14 @@ header {
   text-decoration: none;
 }
 
+.btn-logout, 
+.btn-login {
+    font-weight: bold;
+}
+
 .nav-opcoes a:hover,
-#btn-sobre:hover, #btn-contato:hover, #btn-inicio:hover {
+#btn-sobre:hover, #btn-contato:hover, #btn-inicio:hover,
+#area-usuario span:hover {
   background: #e66e00;
   color: #fff;
 }
@@ -161,6 +168,13 @@ header {
 #mapa {
   width: 100%;
   height: 100%;
+}
+
+/*----------------- tela login e criar conta ------------------*/
+#area-usuario {
+    display: flex;
+    gap: 10px; 
+    align-items: center;
 }
 
 /*----------------- responsividade da tela --------------------*/
@@ -723,6 +737,150 @@ button:hover {
   cursor: pointer; 
   border-radius: 5px; 
   margin-top: 10px; 
+}
+
+/* ------------------------------- Última tela pagto e status --------------*/
+.checkout-container-duplo {
+    display: flex;
+    gap: 30px;
+    padding: 30px;
+    background: #F5E6C8;
+    border-radius: 15px;
+    margin: 20px auto;
+    max-width: 1100px;
+}
+
+.coluna-pagamento, .coluna-status {
+    flex: 1;
+    background: #FFFFFF;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #D2B48C;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.coluna-pagamento h3, .coluna-status h3 {
+    color: #8B4513;
+    border-bottom: 2px solid #DAA520;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.recibo-detalhado {
+    background: #FFF8F0;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #DAA520;
+    color: #3E2723;
+}
+
+.recibo-detalhado p {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.total-checkout {
+    font-size: 22px;
+    color: #8B4513;
+    font-weight: bold;
+    text-align: right;
+    background: #D2B48C;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.timeline-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    padding-left: 20px;
+}
+
+.step {
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.4s;
+}
+
+.step .icon {
+    width: 25px;
+    height: 25px;
+    background: #D2B48C;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #3E2723;
+}
+
+.step.active { 
+    color: #2e7d32; 
+    transform: translateX(10px);
+    background: #E8F5E9;
+}
+
+.step.active .icon { 
+    background: #16ca43; 
+    color: white; 
+    box-shadow: 0 0 10px rgba(22, 202, 67, 0.3);
+}
+
+.step.completed {
+    color: #8B4513;
+}
+
+.step.completed .icon {
+    background: #DAA520;
+    color: white;
+}
+
+.card-pagamento-info {
+    text-align: center;
+    padding: 20px;
+    border: 2px dashed #daa520;
+    margin-top: 15px;
+    background: #FFF8F0;
+    border-radius: 12px;
+}
+
+.card-pagamento-info p {
+    color: #3E2723;
+    margin: 10px 0;
+}
+
+.qr-placeholder {
+    width: 120px;
+    height: 120px;
+    background: white;
+    color: #3E2723;
+    margin: 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.spinner-p {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #D2B48C;
+    border-top: 3px solid #daa520;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
+
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } 
 }
 
 

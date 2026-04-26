@@ -85,11 +85,15 @@ function renderUsuario() {
 
     if (usuarioLogado) {
         area.innerHTML = `
-            <span onclick="renderizarPainelPontos()">${usuarioLogado.user} (Ver Pontos)</span>
-            <button onclick="logout()">Sair</button>
+            <span onclick="renderizarPainelPontos()">Olá ${usuarioLogado.user} - (Ver seus pontos)</span>
+            <button class="btn-logout" onclick="logout()">Sair</button>
         `;
     } else {
-        area.innerHTML = `<button onclick="fazerLogin()">Entrar</button>`;
+        area.innerHTML = `
+            <button class="btn-login" onclick="fazerLogin()">
+                👤 Entrar / Cadastrar
+            </button>
+        `;
     }
 }
 
@@ -327,6 +331,7 @@ function fazerLogin() {
                 <input type="password" id="login-senha" placeholder="SENHA">
             </div>
             <button class="btn-entrar" onclick="confirmarLogin()">ENTRAR</button>
+            <button class="btn-entrar" onclick="abrirTermoLGPD()">CADASTRAR</button>
             <button class="btn-voltar" onclick="voltarParaHome()">VOLTAR</button>
         </div>
     `;
@@ -385,6 +390,7 @@ function logout() {
     }
 }
 
+/*-------------- lgpd ----------------*/
 function abrirTermoLGPD() {
     const overlay = document.createElement("div");
     overlay.className = "overlay-lgpd";
@@ -535,50 +541,62 @@ function finalizarPedido() {
 
     // 3. Renderização da tela de Checkout
     main.innerHTML = `
-        <div class="checkout-grid">
-            <div class="painel-pagamento">
-                <h3>RESUMO DO PAGAMENTO</h3>
-                
-                <div class="recibo">
-                    <div class="itens-recibo">
-                        ${carrinho.map(item => `
-                            <p><span>${item.quantidade}x ${item.nome}</span> <span>R$ ${(item.preco * item.quantidade).toFixed(2)}</span></p>
-                        `).join('')}
-                    </div>   
-
+        <div class="checkout-container-duplo">
+            <div class="coluna-pagamento">
+                <h3>PAGAMENTO 💰</h3>
+                <div class="recibo-detalhado">
+                    ${carrinho.map(item => `
+                        <p><span>${item.quantidade}x ${item.nome}</span> <span>R$ ${(item.preco * item.quantidade).toFixed(2)}</span></p>
+                    `).join('')}
                     <hr>
-
-                    <div class="valores-finais">
-                        <p>Subtotal: R$ ${subtotal.toFixed(2)}</p>
-                        ${valorDesconto > 0 ? `<p class="desconto-aplicado">Desconto (${descontoAtivo}%): - R$ ${valorDesconto.toFixed(2)}</p>` : ''}
-                        <p class="total-destaque"><strong>TOTAL: R$ ${totalFinal.toFixed(2)}</strong></p>
-                    </div>
-
-                    ${usuarioLogado && pontos > 0 ? `
-                        <div class="aviso-pontos">
-                            <small>Descontados ${pontos} pontos do seu saldo.</small>
-                        </div>
-                    ` : ''}
+                    <p>Subtotal: R$ ${subtotal.toFixed(2)}</p>
+                    ${valorDesconto > 0 ? `<p class="txt-desconto">Desc: - R$ ${valorDesconto.toFixed(2)}</p>` : ''}
+                    <p class="total-checkout">TOTAL: R$ ${totalFinal.toFixed(2)}</p>
                 </div>
 
-                <h4>Selecione o método de pagamento:</h4>
-                <div class="metodos">
-                    <button class="btn-pgto" onclick="iniciarPagamento('Dinheiro')">💵 Dinheiro</button>
-                    <button class="btn-pgto" onclick="iniciarPagamento('Cartão')">💳 Cartão</button>
-                    <button class="btn-pgto" onclick="iniciarPagamento('Pix')">🏦 Pix</button>
+                <div class="metodos-grid">
+                    <button class="btn-metodo" onclick="processarFluxoPagamento('Dinheiro')">💵 Dinheiro</button>
+                    <button class="btn-metodo" onclick="processarFluxoPagamento('Cartão')">💳 Cartão</button>
+                    <button class="btn-metodo" onclick="processarFluxoPagamento('Pix')">🏦 Pix</button>
                 </div>
                 
-                <button class="btn-voltar-checkout" onclick="voltarParaHome()">CANCELAR E VOLTAR</button>
+                <div id="area-interativa-pagamento">
+                </div>
             </div>
 
-            <div class="painel-status" id="status-checkout">
-                <div class="aguardando-pagto">
-                    <p>Aguardando confirmação do pagamento...</p>
-                    <div class="spinner"></div>
+            <div class="coluna-status">
+                <h3>ACOMPANHAR STATUS ⌛</h3>
+                <div id="status-checkout" class="painel-timeline">
+                    <p class="msg-espera">Aguardando pagamento para iniciar o pedido.</p>
                 </div>
             </div>
         </div>
     `;
+}
+
+function processarFluxoPagamento(metodo) {
+    const areaInterativa = document.getElementById("area-interativa-pagamento");
+    
+    if (metodo === 'Dinheiro') {
+        areaInterativa.innerHTML = `
+            <div class="card-pagamento-info">
+                <p>💵 <strong>PAGAMENTO NO CAIXA</strong></p>
+                <p>Por favor, dirija-se ao balcão...</p>
+            </div>`;
+        statusPreparo();
+    } else {
+        areaInterativa.innerHTML = `
+            <div class="card-pagamento-info">
+                <p>Conectando ao banco...</p>
+                <div class="spinner-p"></div>
+                ${metodo === 'Pix' ? '<div class="qr-placeholder">QR CODE PIX</div>' : '<p>Inserir ou aproximar o cartão...</p>'}
+            </div>`;
+        
+        setTimeout(() => {
+            areaInterativa.innerHTML = `<div class="card-pagamento-info"><p>✅ Pagamento Aprovado!</p></div>`;
+            statusPreparo();
+        }, 3500);
+    }
 }
 
 function aplicarDescontoFidelidade(porcentagem) {
@@ -633,31 +651,38 @@ function iniciarPagamento(metodo) {
 function statusPreparo() {
     const areaStatus = document.getElementById("status-checkout");
     
+    // Debitar pontos (se houver desconto aplicado)
     if (usuarioLogado && pontos > 0) {
-        const pontosAntes = usuarioLogado.pontos;
+        const saldoAnterior = usuarioLogado.pontos;
         usuarioLogado.pontos -= pontos;
         
-        console.log(`Debitando ${pontos} pontos. Saldo anterior: ${pontosAntes}, Novo saldo: ${usuarioLogado.pontos}`);
+        console.log(`[FIDELIDADE] Debitando ${pontos}. Novo saldo: ${usuarioLogado.pontos}`);
+        mostrarNotificacao(`Desconto aplicado! -${pontos} pts`);
         
-        mostrarNotificacao(`Foram debitados ${pontos} pontos pelo desconto!`);
-        
-        pontos = 0;
+        pontos = 0; 
         descontoAtivo = 0;
         descontoAplicado = false;
     }
 
     areaStatus.innerHTML = `
-        <h3>ACOMPANHAR STATUS ⌛</h3>
-        <div class="timeline">
-            <div class="pagto-aprovado">PAGAMENTO APROVADO ✅</div>
-            <div class="pedido-preparando">EM PREPARO... ⏳</div>
-            <div class="pedido-entrega">ENTREGA ⚪</div>
+        <div class="timeline-visual">
+            <div class="step" id="st-1"><span class="icon">✓</span> PEDIDO REALIZADO</div>
+            <div class="step" id="st-2"><span class="icon">✓</span> REPASSANDO PEDIDO</div>
+            <div class="step" id="st-3"><span class="icon">⌛</span> EM PREPARO...</div>
+            <div class="step" id="st-4"><span class="icon">●</span> ENTREGUE/RETIRADA</div>
+            <div class="linha-progresso"></div>
         </div>
     `;
 
+    // 3. Simulação da Cozinha 
+    setTimeout(() => document.getElementById("st-1").classList.add("active"), 2000);
+    setTimeout(() => document.getElementById("st-2").classList.add("active"), 4000);
+    setTimeout(() => document.getElementById("st-3").classList.add("active"), 6000);
+    
     setTimeout(() => {
-        finalizarEntregaEPontuar();
-    }, 4000);
+        document.getElementById("st-4").classList.add("active");
+        finalizarEntregaEPontuar(); 
+    }, 10000);
 }
 
 function finalizarEntregaEPontuar() {
@@ -703,8 +728,6 @@ function finalizarEntregaEPontuar() {
         </div>
     `;
 }
-
-
 
 /*-------------- Inicializa o mapa com OpenStreetMap ----------------*/
 function iniciarMapa() {
