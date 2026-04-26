@@ -173,7 +173,7 @@ async function abrirCardapio(idUnidade, manterCarrinho = false) {
                         ? `
                         <div class="fidelidade-checkout">
                             <p>Você tem <strong>${usuarioLogado.pontos} pts</strong></p>
-                            <select id="selecao-desconto" onchange="aplicarDescontoFidelidade(this.value)" style="width: 100%; padding: 5px; margin-bottom: 10px;">
+                            <select id="selecao-desconto" onchange="aplicarDescontoFidelidade(this.value)">
                                 <option value="0">Não usar pontos</option>
                                 <option value="10" ${usuarioLogado.pontos < 1000 ? 'disabled' : ''}>10% OFF (1000 pts)</option>
                                 <option value="20" ${usuarioLogado.pontos < 3000 ? 'disabled' : ''}>20% OFF (3000 pts)</option>
@@ -333,6 +333,7 @@ function fazerLogin() {
 }
 
 function confirmarLogin() {
+    const main = document.getElementById("conteudo-principal");
     const userDigitado = document.getElementById("login-cpf-email").value;
     const senhaDigitada = document.getElementById("login-senha").value;
     const usuarioEncontrado = usuariosCadastrados.find(u => u.user === userDigitado && u.senha === senhaDigitada);
@@ -359,7 +360,6 @@ function confirmarLogin() {
 
     } else {
         // Se não encontrar solicita cadastro
-        const container = document.querySelector(".login-container-fidelidade") || document.getElementById("conteudo-principal");
         main.innerHTML = `
             <div class="login-container-fidelidade">
                 <h2>USUÁRIO NÃO ENCONTRADO</h2>
