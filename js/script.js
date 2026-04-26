@@ -69,7 +69,7 @@ async function renderContato() {
 }
 
 /*------------------- Renderiza a página inicial com os cards das unidades -----------------*/
-async function renderHome() {
+async function carregarTelaInicial() {
     if (dados.length === 0) {
         await carregarDados();
     }
@@ -79,7 +79,7 @@ async function renderHome() {
     const lista = document.getElementById("lista");
     let html = "<h2>Selecione a unidade</h2>";
 
-    dados.unidades.forEach(u => {
+    for (let u of dados.unidades) {
         html += `
             <div class="card-unidade" onclick="moverMapa(${u.coords.lat}, ${u.coords.lng}, '${u.nome}')">
                 <div class="info">
@@ -94,12 +94,12 @@ async function renderHome() {
                 </button>
             </div>
         `;
-    });
+    };
 
     lista.innerHTML = html;
 }
 
-function renderUsuario() {
+function atualizarAreaUsuario() {
     const area = document.getElementById("area-usuario");
     if (!area) return;
 
@@ -183,7 +183,7 @@ async function abrirCardapio(idUnidade, manterCarrinho = false) {
                 ${categoriasHTML}
             </div>
 
-            <aside class="carrinho-lateral" id="carrinho">
+            <aside class="meu-carrinho" id="carrinho">
                 <div class="carrinho-header">
                     <h3>🛒 Seu Pedido</h3>
                 </div>
@@ -221,7 +221,11 @@ async function abrirCardapio(idUnidade, manterCarrinho = false) {
 }
 
 function calcularTotalCarrinho() {
-    return carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+    let soma = 0;
+    for (let i = 0; i < carrinho.length; i++) {
+        soma += (carrinho[i].preco * carrinho[i].quantidade);
+    }
+    return soma;
 }
 
 /*---------------------------- colocar e remover carrinho -------------------------------*/
@@ -299,7 +303,11 @@ function renderCarrinho() {
 }
 
 function atualizarTotalCarrinho() {
-    const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+    let total = 0;
+    for (let i = 0; i < carrinho.length; i++) {
+        total += (carrinho[i].preco * carrinho[i].quantidade);
+    }
+    
     const totalElement = document.querySelector('.carrinho-footer .total strong');
     if (totalElement) {
         totalElement.innerText = `R$ ${total.toFixed(2)}`;
@@ -366,7 +374,7 @@ function confirmarLogin() {
     if (usuarioEncontrado) {
         usuarioLogado = usuarioEncontrado;
 
-        renderUsuario();
+        atualizarAreaUsuario();
         mostrarNotificacao(`Bem-vindo, ${usuarioLogado.user}!`);
         voltarParaCardapioComCarrinho();
 
@@ -401,7 +409,7 @@ function logout() {
     descontoAtivo = 0;
     pontos = 0;
 
-    renderUsuario();
+    atualizarAreaUsuario();
     mostrarNotificacao("Você saiu da conta.");
     if (unidadeAtual) {
         abrirCardapio(unidadeAtual);
@@ -412,15 +420,15 @@ function logout() {
 
 /*-------------- lgpd ----------------*/
 function abrirTermoLGPD() {
-    const overlay = document.createElement("div");
-    overlay.className = "overlay-lgpd";
-    overlay.id = "overlay-lgpd";
+    const aviso = document.createElement("div");
+    aviso.className = "aviso-lgpd";
+    aviso.id = "aviso-lgpd";
 
-    const modal = document.createElement("div");
-    modal.className = "modal-lgpd";
-    modal.id = "modal-lgpd";
+    const caixaAlerta = document.createElement("div");
+    caixaAlerta.className = "caixaAlerta-lgpd";
+    caixaAlerta.id = "caixaAlerta-lgpd";
     
-    modal.innerHTML = `
+    caixaAlerta.innerHTML = `
         <h3>Termo de Privacidade</h3>
         <p>
             Para acumular pontos e receber descontos, precisamos processar seus dados de compra. 
@@ -429,13 +437,13 @@ function abrirTermoLGPD() {
         <button class="btn-aceitar" onclick="confirmarAceiteLGPD()">EU ACEITO E QUERO ME CADASTRAR</button>
     `;
 
-    document.body.appendChild(overlay);
-    document.body.appendChild(modal);
+    document.body.appendChild(aviso);
+    document.body.appendChild(caixaAlerta);
 }
 
 function confirmarAceiteLGPD() {
-    document.getElementById("overlay-lgpd").remove();
-    document.getElementById("modal-lgpd").remove();
+    document.getElementById("aviso-lgpd").remove();
+    document.getElementById("caixaAlerta-lgpd").remove();
     
     irParaTelaCadastro(); 
 }
@@ -463,7 +471,18 @@ function irParaTelaCadastro() {
 }
 
 function salvarNovoUsuario(){
-    alert("Aqui enviaria para o servidor back-end via fetch e mostraria uma mensagem de cadastro realizado e já redirecionaria para tela de pontos.")
+    const nome = document.getElementById("novo-nome").value;
+    const email = document.getElementById("novo-email").value;
+    const senha = document.getElementById("nova-senha").value;
+
+    if(nome && email && senha) {
+        // Simula o salvamento no bd
+        usuariosCadastrados.push({ user: email, senha: senha, pontos: 0 });
+        mostrarNotificacao("Cadastro realizado! Agora faça login.");
+        fazerLogin();
+    } else {
+        alert("Preencha todos os campos!");
+    }
 }
 
 function renderizarPainelPontos() {
@@ -507,7 +526,11 @@ function atualizarVisualizacaoCarrinho() {
         return;
     }
     
-    let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+    let subtotal = 0;
+    for (let item of carrinho) {
+        subtotal += (item.preco * item.quantidade);
+    }
+
     let valorDesconto = (subtotal * descontoAtivo) / 100;
     let totalFinal = subtotal - valorDesconto;
 
@@ -550,7 +573,12 @@ function finalizarPedido() {
         return;
     }
 
-    let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+    // 1. Calculando subtotal com laço for
+    let subtotal = 0;
+    for (let i = 0; i < carrinho.length; i++) {
+        subtotal += (carrinho[i].preco * carrinho[i].quantidade);
+    }
+
     let valorDesconto = 0;
     let totalFinal = subtotal;
 
@@ -559,15 +587,20 @@ function finalizarPedido() {
         totalFinal = subtotal - valorDesconto;
     }
 
+    let itensHTML = "";
+    for (let item of carrinho) {
+        itensHTML += `
+            <p><span>${item.quantidade}x ${item.nome}</span> <span>R$ ${(item.preco * item.quantidade).toFixed(2)}</span></p>
+        `;
+    }
+
     // 3. Renderização da tela de Checkout
     main.innerHTML = `
-        <div class="checkout-container-duplo">
+        <div class="area-pagamento-status">
             <div class="coluna-pagamento">
                 <h3>PAGAMENTO 💰</h3>
                 <div class="recibo-detalhado">
-                    ${carrinho.map(item => `
-                        <p><span>${item.quantidade}x ${item.nome}</span> <span>R$ ${(item.preco * item.quantidade).toFixed(2)}</span></p>
-                    `).join('')}
+                    ${itensHTML}
                     <hr>
                     <p>Subtotal: R$ ${subtotal.toFixed(2)}</p>
                     ${valorDesconto > 0 ? `<p class="txt-desconto">Desc: - R$ ${valorDesconto.toFixed(2)}</p>` : ''}
@@ -608,7 +641,7 @@ function processarFluxoPagamento(metodo) {
         areaInterativa.innerHTML = `
             <div class="card-pagamento-info">
                 <p>Conectando ao banco...</p>
-                <div class="spinner-p"></div>
+                <div class="icone-loading"></div>
                 ${metodo === 'Pix' ? '<img src="/assets/img/qr_code.png" alt="QR Code Pix" class="qr-code-img">' : '<p>Inserir ou aproximar o cartão...</p>'}
             </div>`;
         
@@ -686,10 +719,10 @@ function statusPreparo() {
 
     areaStatus.innerHTML = `
         <div class="timeline-visual">
-            <div class="step" id="st-1"><span class="icon">✓</span> PEDIDO REALIZADO</div>
-            <div class="step" id="st-2"><span class="icon">✓</span> REPASSANDO PEDIDO</div>
-            <div class="step" id="st-3"><span class="icon">⌛</span> EM PREPARO...</div>
-            <div class="step" id="st-4"><span class="icon">●</span> ENTREGUE/RETIRADA</div>
+            <div class="etapa" id="st-1"><span class="icon">✓</span> PEDIDO REALIZADO</div>
+            <div class="etapa" id="st-2"><span class="icon">✓</span> REPASSANDO PEDIDO</div>
+            <div class="etapa" id="st-3"><span class="icon">⌛</span> EM PREPARO...</div>
+            <div class="etapa" id="st-4"><span class="icon">●</span> ENTREGUE/RETIRADA</div>
             <div class="linha-progresso"></div>
         </div>
     `;
@@ -739,7 +772,7 @@ function finalizarEntregaEPontuar() {
         <div class="banner-final">
             <p>Obrigado pela preferência!</p>
             
-            <button onclick="voltarParaHome()">🏠 Home</button>
+            <button onclick="voltarParaHome()">🏠 Inicio</button>
                 ${!usuarioLogado ? `
                 <button onclick="abrirTermoLGPD()">🔥 Criar conta e resgatar pontos</button>
              ` : `
@@ -782,17 +815,17 @@ function voltarParaHome() {
     `;
 
     iniciarMapa();
-    renderHome();
+    carregarTelaInicial();
     resetarCompra();
-    renderUsuario();
+    atualizarAreaUsuario();
 }
 
 /*---------------------- Inicializa o sistema  --------------------------*/
 document.addEventListener("DOMContentLoaded", async () => {
     await carregarDados();
     iniciarMapa();
-    renderHome();
-    renderUsuario();
+    carregarTelaInicial();
+    atualizarAreaUsuario();
     
     const carrinhoSalvo = localStorage.getItem('carrinho');
     if (carrinhoSalvo) {
