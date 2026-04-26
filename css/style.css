@@ -313,6 +313,16 @@ button:hover {
     color: #3E2723;
 }
 
+.img-sobre {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    object-fit: cover;
+}
+
 .informacoes h2 {
     color: #8B4513;
     border-bottom: 2px solid #DAA520;

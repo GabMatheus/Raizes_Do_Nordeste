@@ -23,11 +23,31 @@ async function carregarDados() {
 /*----------------------------- Renderiza a página nossa história ------------------------*/
 async function renderSobreNos() {
     const main = document.getElementById("conteudo-principal");
+    if (!main) return;
+
     main.innerHTML = `
         <div class="informacoes">
             <h2>Sobre a Rede Raízes do Nordeste</h2>
-            <p>Nossa história começou com o desejo de trazer o sabor autêntico do sertão para a cidade...</p>
-            <p>Hoje, somos referência em culinária nordestina, mantendo vivas as tradições de nossos antepassados.</p>
+            <img src="assets/img/francisca.png" alt="Dona Francisca" class="img-sobre">
+            <p>
+                O cheiro de cuscuz quente, café passado na hora e manteiga de garrafa ainda domina o
+                pequeno salão da primeira unidade da Raízes do Nordeste, inaugurada há pouco mais de seis anos
+                em um bairro tradicional de Recife.
+            </p>
+            <p>
+                O que começou como um pequeno negócio familiar, comandado por Dona Francisca e seus dois filhos,
+                hoje se transformou em uma rede de lanchonetes nordestinas em franca expansão, presente em
+                diferentes capitais e cidades do interior do Brasil.
+            </p>
+            <p>
+                A proposta sempre foi clara: levar a culinária nordestina para o dia a dia urbano, com rapidez,
+                qualidade e identidade cultural.
+            </p>
+            <p>
+                Tapiocas, cuscuz recheado, bolo de macaxeira, sucos regionais e cafés da manhã completos
+                conquistaram um público fiel, desde trabalhadores que passam antes do expediente até famílias
+                nos fins de semana.
+            </p>
         </div>
     `;
 }
@@ -40,7 +60,7 @@ async function renderContato() {
             <h2>Fale Conosco</h2>
             <p>Tem alguma dúvida ou sugestão? Entre em contato conosco!</p>
             <div class="contato-info">
-                <p><i class="fas fa-phone"></i> (81) 9999-9999</p>
+                <p><i class="fas fa-phone"></i> (99) 9999-9999</p>
                 <p><i class="fas fa-envelope"></i> contato@raizesdonordeste.com.br</p>
                 <p><i class="fab fa-instagram"></i> @raizesdonordeste</p>
             </div>
