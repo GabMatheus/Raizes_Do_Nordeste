@@ -609,7 +609,7 @@ function processarFluxoPagamento(metodo) {
             <div class="card-pagamento-info">
                 <p>Conectando ao banco...</p>
                 <div class="spinner-p"></div>
-                ${metodo === 'Pix' ? '<div class="qr-placeholder">QR CODE PIX</div>' : '<p>Inserir ou aproximar o cartão...</p>'}
+                ${metodo === 'Pix' ? '<img src="/assets/img/qr_code.png" alt="QR Code Pix" class="qr-code-img">' : '<p>Inserir ou aproximar o cartão...</p>'}
             </div>`;
         
         setTimeout(() => {
@@ -702,7 +702,7 @@ function statusPreparo() {
     setTimeout(() => {
         document.getElementById("st-4").classList.add("active");
         finalizarEntregaEPontuar(); 
-    }, 10000);
+    }, 15000);
 }
 
 function finalizarEntregaEPontuar() {
