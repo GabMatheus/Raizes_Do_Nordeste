@@ -21,7 +21,7 @@ async function carregarDados() {
 }
 
 /*----------------------------- Renderiza a página nossa história ------------------------*/
-async function renderSobreNos() {
+async function irParaSobreNosNos() {
     const main = document.getElementById("conteudo-principal");
     if (!main) return;
 
@@ -53,7 +53,7 @@ async function renderSobreNos() {
 }
 
 /*---------------------- Renderiza a página de contato -----------------------*/
-async function renderContato() {
+async function irParaContato() {
     const main = document.getElementById("conteudo-principal");
     main.innerHTML = `
         <div class="informacoes">
@@ -266,7 +266,7 @@ function voltarParaCardapioComCarrinho() {
     if (unidadeSalva && unidadeSalva !== 'null') {
         abrirCardapio(parseInt(unidadeSalva));
     } else {
-        voltarParaHome();
+        voltarParaInicio();
     }
     
     sessionStorage.removeItem('carrinhoAntesLogin');
@@ -275,33 +275,30 @@ function voltarParaCardapioComCarrinho() {
 
 function renderCarrinho() {
     const lista = document.querySelector('#itens-carrinho');
-
     if (!lista) return;
-
-    lista.innerHTML = '';
 
     if (carrinho.length === 0) {
         lista.innerHTML = '<p>Carrinho vazio</p>';
         return;
     }
 
+    let conteudoCarrinho = '';
+
     for (const item of carrinho) {
-        const div = document.createElement('div');
-        div.className = 'item-carrinho';
-
-        div.innerHTML = `
-            <div class="info">
-                <p>${item.nome}</p>
-                <span>R$ ${item.preco.toFixed(2)} x ${item.quantidade}</span>
-            </div>
-
-            <div class="remover">
-                <button onclick="removerDoCarrinho(${item.id})">⛔</button>
+        conteudoCarrinho += `
+            <div class="item-carrinho">
+                <div class="info">
+                    <p>${item.nome}</p>
+                    <span>R$ ${item.preco.toFixed(2)} x ${item.quantidade}</span>
+                </div>
+                <div class="remover">
+                    <button onclick="removerDoCarrinho(${item.id})">⛔</button>
+                </div>
             </div>
         `;
-
-        lista.appendChild(div);
     }
+
+    lista.innerHTML = conteudoCarrinho;
 }
 
 function atualizarTotalCarrinho() {
@@ -362,7 +359,7 @@ function fazerLogin() {
             </div>
             <button class="btn-entrar" onclick="confirmarLogin()">ENTRAR</button>
             <button class="btn-entrar" onclick="abrirTermoLGPD()">CADASTRAR</button>
-            <button class="btn-voltar" onclick="voltarParaHome()">VOLTAR</button>
+            <button class="btn-voltar" onclick="voltarParaInicio()">VOLTAR</button>
         </div>
     `;
 }
@@ -409,44 +406,33 @@ function confirmarLogin() {
 function logout() {
     usuarioLogado = null;
     descontoAtivo = 0;
-    pontos = 0;
 
     atualizarAreaUsuario();
-    mostrarNotificacao("Você saiu da conta.");
-    if (unidadeAtual) {
-        abrirCardapio(unidadeAtual);
-    } else {
-        voltarParaHome();
-    }
+    mostrarNotificacao("Desconectado com sucesso!");
+
+    voltarParaInicio();
+    unidadeAtual = null; 
 }
 
 /*-------------- lgpd ----------------*/
 function abrirTermoLGPD() {
-    const aviso = document.createElement("div");
-    aviso.className = "aviso-lgpd";
-    aviso.id = "aviso-lgpd";
+    const main = document.getElementById("conteudo-principal");
+    if (!main) return;
 
-    const caixaAlerta = document.createElement("div");
-    caixaAlerta.className = "caixaAlerta-lgpd";
-    caixaAlerta.id = "caixaAlerta-lgpd";
-    
-    caixaAlerta.innerHTML = `
-        <h3>Termo de Privacidade</h3>
-        <p>
-            Para acumular pontos e receber descontos, precisamos processar seus dados de compra. 
-            Você aceita nossos termos de uso e política de privacidade (LGPD)?
-        </p>
-        <button class="btn-aceitar" onclick="confirmarAceiteLGPD()">EU ACEITO E QUERO ME CADASTRAR</button>
+    main.innerHTML = `
+        <div class="aviso-lgpd" id="aviso-lgpd"></div>
+        <div class="caixaAlerta-lgpd" id="caixaAlerta-lgpd">
+            <h3>Termo de Privacidade</h3>
+            <p>
+                Para acumular pontos e receber descontos, precisamos processar seus dados de compra. 
+                Você aceita nossos termos de uso e política de privacidade (LGPD)?
+            </p>
+            <button class="btn-aceitar" onclick="confirmarAceiteLGPD()">EU ACEITO E QUERO ME CADASTRAR</button>
+        </div>
     `;
-
-    document.body.appendChild(aviso);
-    document.body.appendChild(caixaAlerta);
 }
 
-function confirmarAceiteLGPD() {
-    document.getElementById("aviso-lgpd").remove();
-    document.getElementById("caixaAlerta-lgpd").remove();
-    
+function confirmarAceiteLGPD() {    
     irParaTelaCadastro(); 
 }
 
@@ -501,7 +487,7 @@ function renderizarPainelPontos() {
                     <span class="pts-destaque">${usuarioLogado.pontos} PTS</span>
                 </div>
             </div>
-            <button class="btn-voltar" onclick="voltarParaHome()">VOLTAR PARA O INÍCIO</button>
+            <button class="btn-voltar" onclick="voltarParaInicio()">VOLTAR PARA O INÍCIO</button>
         </div>
     `;
 }
@@ -524,7 +510,6 @@ function atualizarVisualizacaoCarrinho() {
     const areaFooter = document.querySelector(".carrinho-footer");
 
     if (!areaFooter) {
-        console.log("Elemento .carrinho-footer não encontrado na tela atual");
         return;
     }
     
@@ -711,7 +696,6 @@ function statusPreparo() {
         const saldoAnterior = usuarioLogado.pontos;
         usuarioLogado.pontos -= pontos;
         
-        console.log(`[FIDELIDADE] Debitando ${pontos}. Novo saldo: ${usuarioLogado.pontos}`);
         mostrarNotificacao(`Desconto aplicado! -${pontos} pts`);
         
         pontos = 0; 
@@ -730,12 +714,12 @@ function statusPreparo() {
     `;
 
     // 3. Simulação da Cozinha 
-    setTimeout(() => document.getElementById("st-1").classList.add("active"), 2000);
-    setTimeout(() => document.getElementById("st-2").classList.add("active"), 4000);
-    setTimeout(() => document.getElementById("st-3").classList.add("active"), 6000);
+    setTimeout(() => document.getElementById("st-1").classList.add("ativo"), 2000);
+    setTimeout(() => document.getElementById("st-2").classList.add("ativo"), 4000);
+    setTimeout(() => document.getElementById("st-3").classList.add("ativo"), 6000);
     
     setTimeout(() => {
-        document.getElementById("st-4").classList.add("active");
+        document.getElementById("st-4").classList.add("ativo");
         finalizarEntregaEPontuar(); 
     }, 15000);
 }
@@ -774,7 +758,7 @@ function finalizarEntregaEPontuar() {
         <div class="banner-final">
             <p>Obrigado pela preferência!</p>
             
-            <button onclick="voltarParaHome()">🏠 Inicio</button>
+            <button onclick="voltarParaInicio()">🏠 Inicio</button>
                 ${!usuarioLogado ? `
                 <button onclick="abrirTermoLGPD()">🔥 Criar conta e resgatar pontos</button>
              ` : `
@@ -801,7 +785,7 @@ function moverMapa(lat, lng) {
 }
 
 /*---------------- Volta para a tela inicial ---------------------*/
-function voltarParaHome() {
+function voltarParaInicio() {
     const main = document.getElementById("conteudo-principal");
 
     if (mapa) {

@@ -845,13 +845,13 @@ button:hover {
     color: #3E2723;
 }
 
-.etapa.active { 
+.etapa.ativo { 
     color: #2e7d32; 
     transform: translateX(10px);
     background: #E8F5E9;
 }
 
-.etapa.active .icon { 
+.etapa.ativo .icon { 
     background: #16ca43; 
     color: white; 
     box-shadow: 0 0 10px rgba(22, 202, 67, 0.3);
