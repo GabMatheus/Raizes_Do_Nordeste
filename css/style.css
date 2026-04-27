@@ -478,7 +478,7 @@ button:hover {
 
 .cardapio-container {
     flex: 2; 
-    margin: 0 !important; 
+    margin: 0; 
 }
 
 .meu-carrinho {
