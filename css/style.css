@@ -907,6 +907,88 @@ button:hover {
     0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } 
 }
 
+/*-------------------------- Responsividade da tela --------------------------*/
+@media (max-width: 768px) {
+.area-pagamento-status {
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
+    margin: 10px;
+}
+
+.coluna-pagamento, 
+.coluna-status {
+    width: 100%;
+    padding: 20px;
+    margin: 0;
+}
+
+.coluna-pagamento {
+    margin-bottom: 0;
+}
+
+.timeline-visual {
+    padding-left: 10px;
+    gap: 15px;
+}
+
+.etapa {
+    font-size: 13px;
+}
+
+.etapa.ativo {
+    transform: translateX(5px);
+}
+
+.qr-code-img {
+    width: 150px;
+    height: 150px;
+}
+
+.total-checkout {
+    font-size: 18px;
+    text-align: center;
+}
+
+.recibo-detalhado p {
+    font-size: 13px;
+}
+
+.card-pagamento-info {
+    padding: 15px;
+}
+}
+
+@media (max-width: 480px) {
+.area-pagamento-status {
+    padding: 10px;
+    gap: 15px;
+}
+
+.coluna-pagamento, 
+.coluna-status {
+    padding: 15px;
+}
+
+.etapa {
+    font-size: 12px;
+}
+
+.etapa .icon {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+}
+
+.qr-code-img {
+    width: 120px;
+    height: 120px;
+}
+
+.total-checkout {
+    font-size: 16px;
+}
+}
 
 /*----------------------------- Rodapé --------------------------------*/
 footer {
