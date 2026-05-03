@@ -632,7 +632,7 @@ async function processarFluxoPagamento(metodo) {
             <div class="card-pagamento-info">
                 <p>Conectando ao banco...</p>
                 <div class="icone-loading"></div>
-                ${metodo === 'Pix' ? '<img src="/assets/img/qr_code.png" alt="QR Code Pix" class="qr-code-img">' : '<p>Inserir ou aproximar o cartão...</p>'}
+                ${metodo === 'Pix' ? '<img src="assets/img/qr_code.png" alt="QR Code Pix" class="qr-code-img">' : '<p>Inserir ou aproximar o cartão...</p>'}
             </div>`;
         
         setTimeout(() => {
