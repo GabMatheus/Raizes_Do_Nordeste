@@ -21,7 +21,7 @@ async function carregarDados() {
 }
 
 /*----------------------------- Renderiza a página nossa história ------------------------*/
-async function irParaSobreNosNos() {
+function irParaSobreNosNos() {
     const main = document.getElementById("conteudo-principal");
     if (!main) return;
 
@@ -53,7 +53,7 @@ async function irParaSobreNosNos() {
 }
 
 /*---------------------- Renderiza a página de contato -----------------------*/
-async function irParaContato() {
+function irParaContato() {
     const main = document.getElementById("conteudo-principal");
     main.innerHTML = `
         <div class="informacoes">
@@ -231,7 +231,7 @@ function calcularTotalCarrinho() {
 }
 
 /*---------------------------- colocar e remover carrinho -------------------------------*/
-function adicionarAoCarrinho(produto){
+function adicionarAoCarrinho(produto) {
     const itemRepetido = carrinho.find(item => item.id === produto.id);
 
     if (itemRepetido) {
@@ -342,7 +342,7 @@ function mostrarNotificacao(mensagem) {
 }
 
 /*-------------- Terceira tela ao clicar em logar e desconto ----------------*/
-function fazerLogin() {
+async function fazerLogin() {
     const main = document.getElementById("conteudo-principal");
 
     sessionStorage.setItem('carrinhoAntesLogin', JSON.stringify(carrinho));
@@ -364,7 +364,7 @@ function fazerLogin() {
     `;
 }
 
-function confirmarLogin() {
+async function confirmarLogin() {
     const main = document.getElementById("conteudo-principal");
     const userDigitado = document.getElementById("login-cpf-email").value;
     const senhaDigitada = document.getElementById("login-senha").value;
@@ -447,7 +447,10 @@ function irParaTelaCadastro() {
                 <input type="text" id="novo-nome" placeholder="NOME COMPLETO">
             </div>
             <div class="form-group">
-                <input type="text" id="novo-email" placeholder="E-MAIL OU CPF">
+                <input type="text" id="novo-email" placeholder="E-MAIL">
+            </div>
+            <div class="form-group">
+                <input type="text" id="novo-cpf" placeholder="CPF">
             </div>
             <div class="form-group">
                 <input type="password" id="nova-senha" placeholder="CRIE UMA SENHA">
@@ -458,9 +461,10 @@ function irParaTelaCadastro() {
     `;
 }
 
-function salvarNovoUsuario(){
+async function salvarNovoUsuario() {
     const nome = document.getElementById("novo-nome").value;
     const email = document.getElementById("novo-email").value;
+    const cpf = document.getElementById("novo-cpf").value;
     const senha = document.getElementById("nova-senha").value;
 
     if(nome && email && senha) {
@@ -552,7 +556,7 @@ function resetarCompra() {
 }
 
 /*------------- Finalizar pedido, forma de pagto e acompanhar status ----------- */
-function finalizarPedido() {
+async function finalizarPedido() {
     const main = document.getElementById("conteudo-principal");
     
     if (carrinho.length === 0) {
@@ -560,7 +564,6 @@ function finalizarPedido() {
         return;
     }
 
-    // 1. Calculando subtotal com laço for
     let subtotal = 0;
     for (let i = 0; i < carrinho.length; i++) {
         subtotal += (carrinho[i].preco * carrinho[i].quantidade);
@@ -614,7 +617,7 @@ function finalizarPedido() {
     `;
 }
 
-function processarFluxoPagamento(metodo) {
+async function processarFluxoPagamento(metodo) {
     const areaInterativa = document.getElementById("area-interativa-pagamento");
     
     if (metodo === 'Dinheiro') {
@@ -671,7 +674,7 @@ function aplicarDescontoFidelidade(porcentagem) {
     }
 }
 
-function iniciarPagamento(metodo) {
+async function iniciarPagamento(metodo) {
     const areaStatus = document.getElementById("status-checkout");
     let segundos = 3;
 
@@ -688,7 +691,7 @@ function iniciarPagamento(metodo) {
     }, 1000);
 }
 
-function statusPreparo() {
+async function statusPreparo() {
     const areaStatus = document.getElementById("status-checkout");
     
     // Debitar pontos (se houver desconto aplicado)
