@@ -112,13 +112,13 @@ async function carregarTelaInicial() {
         const lng = u.coords && u.coords.lng ? u.coords.lng : -34.8770;
         
         html += `
-            <div class="card-unidade" onclick="moverMapa(${lat}, ${lng}, '${u.nome.replace(/'/g, "\\'")}')">
+            <div class="card-unidade" onclick="moverMapa(${lat}, ${lng}, '${u.nome}')">
                 <div class="info">
                     <h3>${u.nome || "Unidade sem nome"}</h3>
-                    <p>${u.endereco || "Endereço não informado"} - ${u.cidade || "Cidade não informada"}</p>
+                    <p>${u.endereco} - ${u.cidade}</p>
                 </div>
                 <div class="foto">
-                    <img src="${u.foto || 'assets/img/placeholder.png'}" alt="${u.nome || 'Unidade'}" onerror="this.src='assets/img/placeholder.png'">
+                    <img src="${u.foto}" alt="${u.nome}">
                 </div>
                 <button onclick="abrirCardapio(${u.id}); event.stopPropagation();">
                     Ver Cardápio
@@ -149,136 +149,95 @@ function atualizarAreaUsuario() {
 }
 
 /* ----------------------------segunda tela ------------------------------- */
-async function abrirCardapio(idUnidade, manterCarrinho = false) {
+async function abrirCardapio(idUnidade) {
     const main = document.getElementById("conteudo-principal");
+    const unidade = dados.unidades?.find(u => u.id === idUnidade);
     
-    const unidade = dados.unidades ? dados.unidades.find(u => u.id === idUnidade) : null;
-    
-    if (!unidade) {
-        console.error("Unidade não encontrada:", idUnidade);
-        mostrarNotificacao("Erro ao carregar cardápio");
-        voltarParaInicio();
-        return;
-    }
-    
+    if (!unidade) return;
+
     unidadeAtual = idUnidade;
-    
     const produtosPorCategoria = {};
-    
-    if (unidade.produtos && unidade.produtos.length > 0) {
-        for (let i = 0; i < unidade.produtos.length; i++) {
-            const produto = unidade.produtos[i];
-            
-            if (!produto || !produto.categoria) continue;
-            
-            if (!produtosPorCategoria[produto.categoria]) {
-                produtosPorCategoria[produto.categoria] = [];
-            }
-            produtosPorCategoria[produto.categoria].push(produto);
+
+    // Agrupando produtos por categoria
+    for (let i = 0; i < unidade.produtos.length; i++) {
+        const p = unidade.produtos[i];
+        if (!produtosPorCategoria[p.categoria]) {
+            produtosPorCategoria[p.categoria] = [];
         }
+        produtosPorCategoria[p.categoria].push(p);
     }
-    
-    const nomeCategorias = {
-        'cafe': '☕ Café da Manhã',
-        'almoco': '🍽️ Almoço',
-        'lanche': '🍔 Lanches',
-        'doce': '🍰 Sobremesas',
-        'bebida': '🥤 Bebidas'
+
+    const labels = {
+        cafe: '☕ Café da Manhã',
+        almoco: '🍽️ Almoço',
+        lanche: '🍔 Lanches',
+        doce: '🍰 Sobremesas',
+        bebida: '🥤 Bebidas'
     };
-    
+
     let categoriasHTML = '';
-    
-    for (let categoria in produtosPorCategoria) {
-        if (!produtosPorCategoria.hasOwnProperty(categoria)) continue;
-        
-        const produtos = produtosPorCategoria[categoria];
-        const nomeCategoria = nomeCategorias[categoria] || categoria;
-        
+
+    // Montando o HTML das categorias e produtos
+    for (let cat in produtosPorCategoria) {
         let produtosHTML = '';
-        
-        // For para produtos dentro da categoria
-        for (let j = 0; j < produtos.length; j++) {
-            const produto = produtos[j];
-            
-            // Usa valores padrão se faltar algo
-            const nomeProduto = produto.nome || "Produto sem nome";
-            const descricao = produto.descricao || "Sem descrição";
-            const preco = produto.preco || 0;
-            const foto = produto.foto || "assets/img/placeholder.png";
-            
+        const lista = produtosPorCategoria[cat];
+
+        for (let j = 0; j < lista.length; j++) {
+            const p = lista[j];
             produtosHTML += `
                 <div class="card-produto">
-                    <img src="${foto}" alt="${nomeProduto}" onerror="this.src='assets/img/placeholder.png'">
+                    <img src="${p.foto}" alt="${p.nome}">
                     <div class="card-body">
-                        <strong>${nomeProduto}</strong>
-                        <p>${descricao}</p>
-                        <span class="preco">R$ ${preco.toFixed(2)}</span>
-                        <button class="btn-add" onclick='adicionarAoCarrinho(${JSON.stringify(produto)})'>
+                        <strong>${p.nome}</strong>
+                        <p>${p.descricao}</p>
+                        <span class="preco">R$ ${p.preco.toFixed(2)}</span>
+                        <button class="btn-add" onclick='adicionarAoCarrinho(${JSON.stringify(p)})'>
                             + ADD AO CARRINHO
                         </button>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
-        
+
         categoriasHTML += `
             <div class="categoria">
-                <h3 class="categoria-titulo">${nomeCategoria}</h3>
-                <div class="produtos-grid">
-                    ${produtosHTML}
-                </div>
-            </div>
-        `;
+                <h3 class="categoria-titulo">${labels[cat] || cat}</h3>
+                <div class="produtos-grid">${produtosHTML}</div>
+            </div>`;
     }
-    
-    // Se não tiver nenhuma categoria, mostra mensagem
-    if (categoriasHTML === "") {
-        categoriasHTML = "<p>Cardápio temporariamente indisponível</p>";
-    }
-    
-    // Montar página com carrinho
+
     main.innerHTML = `
         <div class="cardapio-layout">
             <div class="cardapio-container">
                 <div class="cardapio-header">
-                    <h2>${unidade.nome || "Unidade"}</h2>
-                    <p>${unidade.endereco || ""} - ${unidade.cidade || ""}/${unidade.estado || ""}</p>
+                    <h2>${unidade.nome}</h2>
+                    <p>${unidade.endereco} - ${unidade.cidade}/${unidade.estado}</p>
                 </div>
                 ${categoriasHTML}
             </div>
 
             <aside class="meu-carrinho" id="carrinho">
-                <div class="carrinho-header">
-                    <h3>🛒 Seu Pedido</h3>
-                </div>
-                <div id="itens-carrinho">
-                    ${!carrinho || carrinho.length === 0 ? '<p>Carrinho vazio</p>' : ''}
-                </div>
+                <div class="carrinho-header"><h3>🛒 Seu Pedido</h3></div>
+                <div id="itens-carrinho"></div>
                 <div class="carrinho-footer">
-                    <div class="total" id="ver-total">Total: <strong>R$ ${calcularTotalCarrinho().toFixed(2)}</strong></div>
-
-                    ${usuarioLogado && usuarioLogado.pontos !== undefined
-                        ? `
+                    <div class="total" id="ver-total">Total: <strong>R$ 0,00</strong></div>
+                    ${usuarioLogado ? `
                         <div class="fidelidade-checkout">
-                            <p>Você tem <strong>${usuarioLogado.pontos} pts</strong></p>
+                            <p>Pontos: <strong>${usuarioLogado.pontos}</strong></p>
                             <select id="selecao-desconto" onchange="aplicarDescontoFidelidade(this.value)">
                                 <option value="0">Não usar pontos</option>
                                 <option value="10" ${usuarioLogado.pontos < 1000 ? 'disabled' : ''}>10% OFF (1000 pts)</option>
-                                <option value="20" ${usuarioLogado.pontos < 3000 ? 'disabled' : ''}>20% OFF (3000 pts)</option>
-                                <option value="50" ${usuarioLogado.pontos < 7000 ? 'disabled' : ''}>50% OFF (7000 pts)</option>
+                                <option value="30" ${usuarioLogado.pontos < 3000 ? 'disabled' : ''}>30% OFF (3000 pts)</option>
+                                <option value="50" ${usuarioLogado.pontos < 5000 ? 'disabled' : ''}>50% OFF (5000 pts)</option>
+                                <option value="70" ${usuarioLogado.pontos < 7000 ? 'disabled' : ''}>70% OFF (7000 pts)</option>    
                             </select>
                         </div>
-                        ` 
-                        : `<button class="btn-log-desconto" onclick='fazerLogin()'>Logar Para Aplicar Desconto</button>`
-                    }
+                    ` : `<button class="btn-log-desconto" onclick='fazerLogin()'>Logar para descontos</button>`}
                     <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>
                 </div>
             </aside>
-        </div>
-    `;
-    
-    // Renderiza o carrinho se tiver itens
-    if (carrinho && carrinho.length > 0) {
+        </div>`;
+
+    if (carrinho?.length > 0) {
         renderCarrinho();
         atualizarTotalCarrinho();
     }
@@ -302,7 +261,6 @@ function calcularTotalCarrinho() {
 /*---------------------------- colocar e remover carrinho -------------------------------*/
 function adicionarAoCarrinho(produto) {
     if (!produto || !produto.id) {
-        console.warn("Produto inválido");
         return;
     }
     
@@ -315,8 +273,8 @@ function adicionarAoCarrinho(produto) {
     } else {
         carrinho.push({
             id: produto.id,
-            nome: produto.nome || "Produto",
-            preco: produto.preco || 0,
+            nome: produto.nome,
+            preco: produto.preco,
             quantidade: 1
         });
     }
@@ -324,13 +282,13 @@ function adicionarAoCarrinho(produto) {
     try {
         localStorage.setItem('carrinho', JSON.stringify(carrinho));
     } catch(e) {
-        console.warn("Não foi possível salvar no localStorage");
+        console.warn("Não foi possível salvar");
     }
 
     atualizarTotalCarrinho();
     renderCarrinho();
     
-    mostrarNotificacao(`${produto.nome || "Produto"} adicionado ao carrinho!`);
+    mostrarNotificacao(`${produto.nome} adicionado ao carrinho!`);
 }
 
 /*----- pegar status carrinho qd finalizar compra e clicar para logar ------ */
@@ -374,9 +332,6 @@ function renderCarrinho() {
     for (let i = 0; i < carrinho.length; i++) {
         const item = carrinho[i];
         
-        // Pula item inválido
-        if (!item || !item.id) continue;
-        
         conteudoCarrinho += `
             <div class="item-carrinho">
                 <div class="info">
@@ -404,13 +359,13 @@ function atualizarTotalCarrinho() {
 
 function removerDoCarrinho(id) {
     
-    const index = carrinho.findIndex(item => item.id === id);
+    const rm = carrinho.findIndex(item => item.id === id);
 
-    if (index !== -1) {
-        carrinho[index].quantidade--;
+    if (rm !== -1) {
+        carrinho[rm].quantidade--;
 
-        if (carrinho[index].quantidade <= 0) {
-            carrinho.splice(index, 1);
+        if (carrinho[rm].quantidade <= 0) {
+            carrinho.splice(rm, 1);
         }
     }
 
@@ -723,8 +678,8 @@ async function finalizarPedido() {
     main.innerHTML = `
         <div class="area-pagamento-status">
             <div class="coluna-pagamento">
-                <h3>PAGAMENTO 💰</h3>
-                <div class="recibo-detalhado">
+                <h3>PAGAMENTO 💲</h3>
+                <div class="recibo">
                     ${itensHTML || "<p>Nenhum item encontrado</p>"}
                     <hr>
                     <p>Subtotal: R$ ${subtotal.toFixed(2)}</p>
@@ -790,8 +745,9 @@ function aplicarDescontoFidelidade(porcentagem) {
     
     let custoPontos = 0;
     if (porcentagemNum == 10) custoPontos = 1000;
-    else if (porcentagemNum == 20) custoPontos = 3000;
-    else if (porcentagemNum == 50) custoPontos = 7000;
+    else if (porcentagemNum == 30) custoPontos = 3000;
+    else if (porcentagemNum == 50) custoPontos = 5000;
+    else if (porcentagemNum == 70) custoPontos = 7000;
     
     if (porcentagemNum == 0) {
         descontoAtivo = 0;
@@ -903,11 +859,11 @@ async function statusPreparo() {
 
 function finalizarEntregaEPontuar() {
     const areaStatus = document.getElementById("status-checkout");
-
     if (!areaStatus) return;
 
     if (usuarioLogado) {
-        usuarioLogado.pontos += 300;
+        const gasto = typeof custoPontosAtual !== 'undefined' ? custoPontosAtual : 0;
+        usuarioLogado.pontos = (usuarioLogado.pontos - gasto) + 300;
         renderizarPainelPontos();
         mostrarNotificacao("Parabéns! Ganhou 300 pontos pela compra.");
     }
