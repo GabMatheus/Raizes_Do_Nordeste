@@ -549,20 +549,6 @@ function renderizarPainelPontos() {
     `;
 }
 
-function selecionarDesconto(porcentagem, custoPontos) {
-    if (usuarioLogado && usuarioLogado.pontos >= custoPontos) {
-        descontoAtivo = porcentagem;
-        pontos = custoPontos;
-        
-        mostrarNotificacao(`Desconto de ${porcentagem}% aplicado!`);
-        
-        renderizarPainelPontos();
-        atualizarVisualizacaoCarrinho();
-    } else {
-        mostrarNotificacao("Você não tem pontos suficientes para este desconto!");
-    }
-}
-
 function atualizarVisualizacaoCarrinho() {
     const areaCarrinho = document.querySelector(".carrinho-footer");
 
@@ -591,7 +577,10 @@ function atualizarVisualizacaoCarrinho() {
                 <option value="70" ${descontoAtivo == 70 ? 'selected' : ''} ${usuarioLogado.pontos < 7000 ? 'disabled' : ''}>70% OFF (7000 pts)</option>    
             </select>
             <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>`
-            : `<button class="btn-log-desconto" onclick="fazerLogin()">Logar Para Aplicar Desconto</button>`
+            : `
+            <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>
+            <button class="btn-log-desconto" onclick="fazerLogin()">Logar para ganhar pontos</button>
+            `
         }
     `;
 }
@@ -785,29 +774,6 @@ function aplicarDescontoFidelidade(porcentagem) {
     } else {
         mostrarNotificacao("Desconto já aplicado nesta compra");
     }
-}
-
-async function iniciarPagamento(metodo) {
-    const areaStatus = document.getElementById("status-checkout");
-    if (!areaStatus) return;
-    
-    let segundos = 3;
-
-    areaStatus.innerHTML = `<div class="timer-regressivo">Conectando ao banco... ${segundos}s</div>`;
-
-    const cronometro = setInterval(() => {
-        segundos--;
-        
-        const timerElement = document.querySelector(".timer-regressivo");
-        if (timerElement) {
-            timerElement.innerText = `Conectando ao banco... ${segundos}s`;
-        }
-
-        if (segundos <= 0) {
-            clearInterval(cronometro);
-            statusPreparo();
-        }
-    }, 1000);
 }
 
 async function statusPreparo() {
