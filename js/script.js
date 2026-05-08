@@ -250,7 +250,7 @@ async function abrirCardapio(idUnidade) {
 
     if (carrinho?.length > 0) {
         renderCarrinho();
-        atualizarTotalCarrinho();
+        atualizarVisualizacaoCarrinho();
     }
 }
 
@@ -287,7 +287,7 @@ function adicionarAoCarrinho(produto) {
         console.warn("Não foi possível salvar");
     }
 
-    atualizarTotalCarrinho();
+    atualizarVisualizacaoCarrinho();
     renderCarrinho();
     verificarEResetarDesconto();
     
@@ -333,15 +333,6 @@ function renderCarrinho() {
     lista.innerHTML = conteudoCarrinho;
 }
 
-function atualizarTotalCarrinho() {
-    let total = calcularTotalCarrinho();
-    
-    const mostrarTotal = document.querySelector('.carrinho-footer .total strong');
-    if (mostrarTotal) {
-        mostrarTotal.innerText = `R$ ${total.toFixed(2)}`;
-    }
-}
-
 function removerDoCarrinho(id) {
     
     const rm = carrinho.findIndex(item => item.id === id);
@@ -355,7 +346,7 @@ function removerDoCarrinho(id) {
     }
 
     renderCarrinho();
-    atualizarTotalCarrinho();
+    atualizarVisualizacaoCarrinho();
     verificarEResetarDesconto();
 }
 
@@ -583,27 +574,6 @@ function atualizarVisualizacaoCarrinho() {
             `
         }
     `;
-}
-
-function resetarCompra() {
-    carrinho = [];
-    descontoAtivo = 0;
-    pontos = 0;
-    descontoAplicado = false;
-
-    try {
-        localStorage.setItem('carrinho', JSON.stringify(carrinho));
-    } catch(e) {
-        console.warn("Erro ao resetar carrinho");
-    }
-    
-    if (document.querySelector('#itens-carrinho')) {
-        renderCarrinho();
-    }
-    
-    if (document.querySelector(".area-cliente-fidelidade") && usuarioLogado) {
-        renderizarPainelPontos();
-    }
 }
 
 /*------------- Finalizar pedido, forma de pagto e acompanhar status ----------- */
