@@ -158,6 +158,17 @@ async function abrirCardapio(idUnidade) {
     unidadeAtual = idUnidade;
     const produtosPorCategoria = {};
 
+    if (unidadeAtual !== null && unidadeAtual !== idUnidade) {
+        carrinho = [];
+        descontoAtivo = 0;
+        descontoAplicado = false;
+        pontos = 0;
+        try {
+            localStorage.removeItem('carrinho');
+        } catch(e) {}
+        mostrarNotificacao("Carrinho limpo para nova unidade!");
+    }
+
     // Agrupando produtos por categoria
     for (let i = 0; i < unidade.produtos.length; i++) {
         const p = unidade.produtos[i];
@@ -243,28 +254,19 @@ async function abrirCardapio(idUnidade) {
     }
 }
 
-function calcularTotalCarrinho() {
-    // Verifica se carrinho existe e tem itens
-    if (!carrinho || carrinho.length === 0) return 0;
+function calcularTotalCarrinho() {    
     
     let soma = 0;
+
     for (let i = 0; i < carrinho.length; i++) {
         const item = carrinho[i];
-        // Verifica se item é válido
-        if (item && typeof item.preco === 'number' && typeof item.quantidade === 'number') {
-            soma += (item.preco * item.quantidade);
-        }
+        soma += (item.preco * item.quantidade);
     }
+
     return soma;
 }
 
-/*---------------------------- colocar e remover carrinho -------------------------------*/
 function adicionarAoCarrinho(produto) {
-    if (!produto || !produto.id) {
-        return;
-    }
-    
-    if (!carrinho) carrinho = [];
     
     const itemRepetido = carrinho.find(item => item.id === produto.id);
 
@@ -287,32 +289,15 @@ function adicionarAoCarrinho(produto) {
 
     atualizarTotalCarrinho();
     renderCarrinho();
+    verificarEResetarDesconto();
     
     mostrarNotificacao(`${produto.nome} adicionado ao carrinho!`);
 }
 
-/*----- pegar status carrinho qd finalizar compra e clicar para logar ------ */
+/*--------- pegar status carrinho qd for finalizar a compra e clicar para logar ------ */
 function voltarParaCardapioComCarrinho() {
-    const carrinhoSalvo = sessionStorage.getItem('carrinhoAntesLogin');
-    const unidadeSalva = sessionStorage.getItem('unidadeAntesLogin');
-    
-    if (carrinhoSalvo) {
-        try {
-            carrinho = JSON.parse(carrinhoSalvo);
-            if (!carrinho) carrinho = [];
-        } catch(e) {
-            console.warn("Erro ao recuperar carrinho");
-            carrinho = [];
-        }
-    }
-    
-    if (unidadeSalva && unidadeSalva !== 'null') {
-        const idUnidade = parseInt(unidadeSalva);
-        if (!isNaN(idUnidade)) {
-            abrirCardapio(idUnidade);
-        } else {
-            voltarParaInicio();
-        }
+    if (unidadeAtual !== null) {
+        abrirCardapio(unidadeAtual);
     } else {
         voltarParaInicio();
     }
@@ -351,9 +336,9 @@ function renderCarrinho() {
 function atualizarTotalCarrinho() {
     let total = calcularTotalCarrinho();
     
-    const totalElement = document.querySelector('.carrinho-footer .total strong');
-    if (totalElement) {
-        totalElement.innerText = `R$ ${total.toFixed(2)}`;
+    const mostrarTotal = document.querySelector('.carrinho-footer .total strong');
+    if (mostrarTotal) {
+        mostrarTotal.innerText = `R$ ${total.toFixed(2)}`;
     }
 }
 
@@ -371,8 +356,10 @@ function removerDoCarrinho(id) {
 
     renderCarrinho();
     atualizarTotalCarrinho();
+    verificarEResetarDesconto();
 }
 
+/*----------------------- Mensagem de notificação ao usuário --------------------------- */
 function mostrarNotificacao(mensagem) {
     
     const notificacao = document.createElement('div');
@@ -387,7 +374,7 @@ function mostrarNotificacao(mensagem) {
     }, 2000);
 }
 
-/*------------ Terceira tela ao clicar em logar e desconto ----------*/
+/*------------ Terceira tela ao clicar em logar, ver pontos e desconto ----------*/
 async function fazerLogin() {
     const main = document.getElementById("conteudo-principal");
     if (!main) return;
@@ -415,12 +402,6 @@ async function confirmarLogin() {
     const userDigitado = document.getElementById("login-cpf-email");
     const senhaDigitada = document.getElementById("login-senha");
     
-    // Verifica se os campos existem
-    if (!userDigitado || !senhaDigitada) {
-        mostrarNotificacao("Erro ao processar login");
-        return;
-    }
-    
     // Validação de campos vazios
     if (!userDigitado.value.trim() || !senhaDigitada.value.trim()) {
         mostrarNotificacao("Preencha todos os campos!");
@@ -443,19 +424,6 @@ async function confirmarLogin() {
         atualizarAreaUsuario();
         mostrarNotificacao(`Bem-vindo, ${usuarioLogado.user}!`);
         voltarParaCardapioComCarrinho();
-
-        setTimeout(() => {
-            const selectDesconto = document.getElementById("selecao-desconto");
-            if (selectDesconto) {
-                const option10 = selectDesconto.querySelector('option[value="10"]');
-                const option20 = selectDesconto.querySelector('option[value="20"]');
-                const option50 = selectDesconto.querySelector('option[value="50"]');
-                
-                if (option10) option10.disabled = usuarioLogado.pontos < 1000;
-                if (option20) option20.disabled = usuarioLogado.pontos < 3000;
-                if (option50) option50.disabled = usuarioLogado.pontos < 7000;
-            }
-        }, 100);
 
     } else {
         // Se não encontrar solicita cadastro
@@ -495,13 +463,11 @@ function abrirTermoLGPD() {
                 Para acumular pontos e receber descontos, precisamos processar seus dados de compra. 
                 Você aceita nossos termos de uso e política de privacidade (LGPD)?
             </p>
-            <button class="btn-aceitar" onclick="confirmarAceiteLGPD()">EU ACEITO E QUERO ME CADASTRAR</button>
+            <button class="btn-aceitar" onclick="irParaTelaCadastro()">EU ACEITO E QUERO ME CADASTRAR</button>
+            <button class="btn-voltar" onclick="voltarParaInicio()">NÃO ACEITAR</button>
+
         </div>
     `;
-}
-
-function confirmarAceiteLGPD() {    
-    irParaTelaCadastro(); 
 }
 
 function irParaTelaCadastro() {
@@ -536,7 +502,7 @@ async function salvarNovoUsuario() {
     const senha = document.getElementById("nova-senha");
     
     // Validação de campos
-    if (!nome || !email || !senha) {
+    if (!nome || !email || !senha || !cpf) {
         mostrarNotificacao("Erro ao processar cadastro");
         return;
     }
@@ -544,7 +510,7 @@ async function salvarNovoUsuario() {
     // Valida se os campos estão preenchidos
     if(nome.value.trim() && email.value.trim() && senha.value.trim()) {
         
-        // Simula o salvamento no bd
+        // Simula o salvamento no bd do back
         usuariosCadastrados.push({ 
             user: email.value.trim(), 
             senha: senha.value.trim(), 
@@ -598,9 +564,9 @@ function selecionarDesconto(porcentagem, custoPontos) {
 }
 
 function atualizarVisualizacaoCarrinho() {
-    const areaFooter = document.querySelector(".carrinho-footer");
+    const areaCarrinho = document.querySelector(".carrinho-footer");
 
-    if (!areaFooter) {
+    if (!areaCarrinho) {
         return;
     }
     
@@ -609,7 +575,7 @@ function atualizarVisualizacaoCarrinho() {
     let valorDesconto = (subtotal * (descontoAtivo || 0)) / 100;
     let totalFinal = subtotal - valorDesconto;
 
-    areaFooter.innerHTML = `
+    areaCarrinho.innerHTML = `
         <div class="resumo-valores">
             <p>Subtotal: R$ ${subtotal.toFixed(2)}</p>
             ${descontoAtivo > 0 ? `<p>Desconto (${descontoAtivo}%): - R$ ${valorDesconto.toFixed(2)}</p>` : ''}
@@ -617,7 +583,14 @@ function atualizarVisualizacaoCarrinho() {
         </div>
         
         ${usuarioLogado 
-            ? `<button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>`
+            ? `<select id="selecao-desconto" class="select-desconto" onchange="aplicarDescontoFidelidade(this.value)">
+                <option value="0" ${descontoAtivo == 0 ? 'selected' : ''}>Não usar pontos</option>
+                <option value="10" ${descontoAtivo == 10 ? 'selected' : ''} ${usuarioLogado.pontos < 1000 ? 'disabled' : ''}>10% OFF (1000 pts)</option>
+                <option value="30" ${descontoAtivo == 30 ? 'selected' : ''} ${usuarioLogado.pontos < 3000 ? 'disabled' : ''}>30% OFF (3000 pts)</option>
+                <option value="50" ${descontoAtivo == 50 ? 'selected' : ''} ${usuarioLogado.pontos < 5000 ? 'disabled' : ''}>50% OFF (5000 pts)</option>
+                <option value="70" ${descontoAtivo == 70 ? 'selected' : ''} ${usuarioLogado.pontos < 7000 ? 'disabled' : ''}>70% OFF (7000 pts)</option>    
+            </select>
+            <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>`
             : `<button class="btn-log-desconto" onclick="fazerLogin()">Logar Para Aplicar Desconto</button>`
         }
     `;
@@ -739,15 +712,47 @@ async function processarFluxoPagamento(metodo) {
     }
 }
 
+function verificarEResetarDesconto() {
+    if (!carrinho || carrinho.length === 0) {
+        descontoAtivo = 0;
+        descontoAplicado = false;
+        pontos = 0;
+        
+        const selectDesconto = document.getElementById("selecao-desconto");
+        if (selectDesconto) {
+            selectDesconto.value = "0";
+        }
+        
+        atualizarVisualizacaoCarrinho();
+    } else {
+        atualizarVisualizacaoCarrinho();
+    }
+}
+
 function aplicarDescontoFidelidade(porcentagem) {
     
+    if (!carrinho || carrinho.length === 0) {
+        mostrarNotificacao("Carrinho vazio! Adicione itens primeiro.");
+        const selectDesconto = document.getElementById("selecao-desconto");
+        if (selectDesconto) selectDesconto.value = "0";
+        return;
+    }
+
     const porcentagemNum = parseInt(porcentagem);
     
     let custoPontos = 0;
-    if (porcentagemNum == 10) custoPontos = 1000;
-    else if (porcentagemNum == 30) custoPontos = 3000;
-    else if (porcentagemNum == 50) custoPontos = 5000;
-    else if (porcentagemNum == 70) custoPontos = 7000;
+    if (porcentagemNum == 10) {
+        custoPontos = 1000;
+    }
+    else if (porcentagemNum == 30) {
+        custoPontos = 3000;
+    }
+    else if (porcentagemNum == 50) {
+        custoPontos = 5000;
+    }
+    else if (porcentagemNum == 70) {
+        custoPontos = 7000;
+    }
     
     if (porcentagemNum == 0) {
         descontoAtivo = 0;
@@ -761,7 +766,7 @@ function aplicarDescontoFidelidade(porcentagem) {
     if (usuarioLogado.pontos >= custoPontos && !descontoAplicado) {
         descontoAtivo = porcentagemNum;
         pontos = custoPontos;
-        descontoAplicado = true;
+        
         atualizarVisualizacaoCarrinho();
         mostrarNotificacao(`Desconto de ${porcentagemNum}% aplicado! Serão debitados ${custoPontos} pontos`);
     } else if (usuarioLogado.pontos < custoPontos) {
@@ -955,7 +960,20 @@ function voltarParaInicio() {
     const main = document.getElementById("conteudo-principal");
     if (!main) return;
 
-    // Limpa o conteúdo
+    carrinho = [];
+    descontoAtivo = 0;
+    descontoAplicado = false;
+    pontos = 0;
+    unidadeAtual = null;
+    
+    try {
+        localStorage.removeItem('carrinho');
+        sessionStorage.removeItem('carrinhoAntesLogin');
+        sessionStorage.removeItem('unidadeAntesLogin');
+    } catch(e) {
+        console.warn("Erro ao limpar storage");
+    }
+
     main.innerHTML = `
         <div id="home">
             <div id="lista"></div>
@@ -967,7 +985,6 @@ function voltarParaInicio() {
 
     iniciarMapa();
     carregarTelaInicial();
-    resetarCompra();
     atualizarAreaUsuario();
 }
 
