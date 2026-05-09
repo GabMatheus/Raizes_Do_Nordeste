@@ -681,7 +681,6 @@ function verificarEResetarDesconto() {
         if (selectDesconto) {
             selectDesconto.value = "0";
         }
-        
         atualizarVisualizacaoCarrinho();
     } else {
         atualizarVisualizacaoCarrinho();
