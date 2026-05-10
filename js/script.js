@@ -870,11 +870,6 @@ function iniciarMapa() {
 
 /*---------------- Move o mapa ---------------------*/
 function moverMapa(lat, lng, nomeUnidade) {
-    // Verifica se mapa existe
-    if (!mapa) {
-        console.warn("Mapa não inicializado");
-        return;
-    }
     
     // Valida coordenadas
     if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
